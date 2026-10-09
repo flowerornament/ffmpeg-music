@@ -14,7 +14,7 @@ out: release/NNN/cover.png       2048×2048  README from the top (the album cove
      release/NNN/listen.mp4      1080×1350  cover over a live spectrogram, excerpt of every track (~70 s)
      release/trailer.mp4         1920×1080  ~21 s per album, ≤ 140 s (X's limit for standard accounts)
      release/ffmpeg-music.png    2048×2048  the label cover (root README art)
-     README.md                   --only label rewrites its art: the catalog's spectrogram as text
+     README                      --only label rewrites its art: the catalog's spectrogram as text
 
 Video: H.264 high, yuv420p, 30 fps, AAC 256k, +faststart (what X expects).
 """
@@ -210,7 +210,7 @@ def label(segs, W, y):
 # ---------------------------------------------------------------- assets
 def cover_text(studio, dest, readme=None):
     """The album cover: the README's title line and its art (first code block if it has 8+
-    lines, otherwise the largest), fences removed. studio=None reads the label README."""
+    lines, otherwise the largest), fences removed."""
     readme = readme or os.path.join(ROOT, "studios", studio, "README.md")
     L = open(readme, encoding="utf-8").read().split("\n")
     idx = [i for i, l in enumerate(L) if l.startswith("```")]
@@ -330,11 +330,19 @@ def trailer(studios):
                os.path.join(OUT, "trailer.mp4"))
 
 
+def label_span(text):
+    """Where the art sits in the root README: after the title's blank line, before the blank
+    line that precedes the statement."""
+    a = text.index("\n\n") + 2
+    b = text.index("\n\nEach piece is one ffmpeg command.")
+    return a, b
+
+
 def label():
     """The label page: the whole catalog (every TRACKLIST, in order) as one spectrogram, printed
     as text. Time runs down, low frequencies left; characters by rank, so the quietest ~half of
-    the cells are air. Catalog numbers mark where each album begins. Written into the root
-    README's first code block."""
+    the cells are air. Catalog numbers mark where each album begins. Written into the plain-
+    text root README between its title and the line "Each piece is one ffmpeg command."."""
     W, H = 72, 56
     steps = [(0.46, " "), (0.62, "·"), (0.74, ":"), (0.83, "-"), (0.90, "="), (0.95, "+"), (0.98, "*")]
     studios = sorted(s for s in os.listdir(os.path.join(ROOT, "studios"))
@@ -361,20 +369,21 @@ def label():
     rows = [f"{rowmark.get(r, ''):>3}  " + "".join(ch(v) for v in raw[r * W:(r + 1) * W]).rstrip() for r in range(H)]
     hms = "%02d:%02d:%05.2f" % (total // 3600, total % 3600 // 60, total % 60)
     art = "\n".join(r.rstrip() for r in rows)
-    readme = os.path.join(ROOT, "README.md")
+    readme = os.path.join(ROOT, "README")
     text = open(readme, encoding="utf-8").read()
-    a = text.index("```text\n") + len("```text\n")
-    b = re.compile(r"^```$", re.M).search(text, a).start()     # the line that closes the block
-    open(readme, "w", encoding="utf-8").write(text[:a] + art + "\n" + text[b:])
+    a, b = label_span(text)
+    open(readme, "w", encoding="utf-8").write(text[:a] + art + text[b:])
     print(f"  README art: {len(files)} tracks, {hms}")
 
 
 def repo_card():
     """The label cover: the root README's art, 2048×2048 like the album covers."""
     os.makedirs(OUT, exist_ok=True)
+    text = open(os.path.join(ROOT, "README"), encoding="utf-8").read()
+    a, b = label_span(text)
     with tempfile.TemporaryDirectory() as tmp:
         t = os.path.join(tmp, "label.txt")
-        cover_text(None, t, os.path.join(ROOT, "README.md"))
+        open(t, "w", encoding="utf-8").write("ffmpeg-music\n\n" + text[a:b] + "\n")
         still(t, os.path.join(OUT, "ffmpeg-music.png"), 2048, 2048)
 
 

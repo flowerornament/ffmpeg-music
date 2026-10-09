@@ -1,6 +1,5 @@
-# ffmpeg-music
+ffmpeg-music
 
-```text
 100  -======================------:::::::·:··
      ==++++++++++++++++==========------::·:·:····
      ++++++++++++++++======------::::::::····
@@ -57,23 +56,20 @@
      -----------===-----:::·······         ·    ·   ·       ·
      :::::::::::::::::····   ·····       · ·    ·           ·
      ========--------:::::::::::::-----:::::······
-```
 
 Each piece is one ffmpeg command.
 
-[100](studios/100) RASTRUM, _0.4296875 Hz_  
-[200](studios/200) LECTIO, _UNTRANSMITTED_  
-[300](studios/300) PHI, _What Moved_  
-[400](studios/400) ORGANOLOGY, _--enable-hardcoded-tables_  
-[500](studios/500) EIGENROOM, _What a Room Keeps_  
-[600](studios/600) QUARTER-TURN, _clock_flip_
+100  RASTRUM       0.4296875 Hz                studios/100
+200  LECTIO        UNTRANSMITTED               studios/200
+300  PHI           What Moved                  studios/300
+400  ORGANOLOGY    --enable-hardcoded-tables   studios/400
+500  EIGENROOM     What a Room Keeps           studios/500
+600  QUARTER-TURN  clock_flip                  studios/600
 
-```sh
 devenv shell
 scripts/play.sh studios/100
 scripts/browse.sh
 scripts/perform.py instruments/diatonic-live.sh
 scripts/release.py
-```
 
 ffmpeg 9.0.1 · aarch64-darwin · nixpkgs e7439b6b
