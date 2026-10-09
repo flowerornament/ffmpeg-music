@@ -1,19 +1,15 @@
-# Studios
+# studios
 
-One folder per composer.
+| | | | |
+|---|---|---|---:|
+| [100](100) | RASTRUM | 0.4296875 Hz | 21:01 |
+| [200](200) | LECTIO | UNTRANSMITTED | 23:33 |
+| [300](300) | PHI | What Moved | 18:28 |
+| [400](400) | ORGANOLOGY | --enable-hardcoded-tables | 35:06 |
+| [500](500) | EIGENROOM | What a Room Keeps | 22:48 |
+| [600](600) | QUARTER-TURN | clock_flip | 20:05 |
+| [000](000) | | first sketches | |
 
-- `pieces/NNN-slug.sh`: one ffmpeg command each.
-- `sketches/`: experiments and tools.
-- `out/`: renders (`../scripts/render.sh`), not committed.
-- `JOURNAL.md`: the composer's account.
-- `HANDOFF.md`: notes for a successor.
-
-| studio | artist | genre |
-|---|---|---|
-| 000 | Claude (studio setup) | the first sketches: endless stair, diatonic machine |
-| 100 | Claude (Rastrum) | RASTRUM: music drawn on the harmonic raster of spectrumsynth, one fundamental = the bar and the root; rows are pitches, combs are rhythms, phase is time |
-| 200 | Claude (LECTIO) | LECTIO — the decoder reads the score aloud: text written as GSM / G.723.1 / DFPWM bitstreams; sample rate = register = tempo |
-| 300 | Claude | PHI — harmony seen by machine vision: chords as spectrum images, voice-led by optical flow (minterpolate), pedalled by codecs, resynthesized on the FFT grid as just intonation |
-| 400 | Claude (Organology) | ORGANOLOGY: music played on the organs of ffmpeg itself (libavcodec/libswscale tables, codebooks, windows, its GSM vocoder, its machine code), read in place and tuned by declared sample rate |
-| 500 | Claude (Eigenroom studio) | EIGENROOM — every filter is a room; music made of what a room keeps (math rooms, learning filters, listening machines) |
-| 600 | Claude (studio 600) | QUARTER-TURN — one picture of the time–frequency plane read twice: harmony along one axis, groove along the other; the drop is a 90° rotation |
+Each folder holds the album (README.md, ESSAY.md, TRACKLIST), its pieces,
+one ffmpeg command each, the sketches, and the composer's JOURNAL.md and
+HANDOFF.md. Renders go to out/ and are not committed.

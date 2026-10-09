@@ -6,14 +6,15 @@ Braille and box drawing render). Everything else is ffmpeg: sizing, soundtracks,
 spectrograms, muxing. Run inside `devenv shell` (provides vhs, ffmpeg, fzf, chafa).
 
 usage: scripts/release.py [NNN ...]          default: every studio with a TRACKLIST
-       scripts/release.py --only covers|stills|browse|listen|trailer [NNN ...]
+       scripts/release.py --only covers|stills|browse|listen|trailer|label [NNN ...]
 
 out: release/NNN/cover.png       2048×2048  README from the top (the album cover)
      release/NNN/tracklist.png   2048×2048  TRACKLIST
      release/NNN/browse.mp4      1920×1080  scripts/browse.sh walking the tracklist, with the music (~70 s)
      release/NNN/listen.mp4      1080×1350  cover over a live spectrogram, excerpt of every track (~70 s)
      release/trailer.mp4         1920×1080  ~21 s per album, ≤ 140 s (X's limit for standard accounts)
-     release/ffmpeg-music.png    1600×900   the repo README
+     release/ffmpeg-music.png    2048×2048  the label cover (root README art)
+     README.md                   --only label rewrites its art: the catalog's spectrogram as text
 
 Video: H.264 high, yuv420p, 30 fps, AAC 256k, +faststart (what X expects).
 """
@@ -207,10 +208,11 @@ def label(segs, W, y):
 
 
 # ---------------------------------------------------------------- assets
-def cover_text(studio, dest):
+def cover_text(studio, dest, readme=None):
     """The album cover: the README's title line and its art (first code block if it has 8+
-    lines, otherwise the largest), fences removed."""
-    L = open(os.path.join(ROOT, "studios", studio, "README.md"), encoding="utf-8").read().split("\n")
+    lines, otherwise the largest), fences removed. studio=None reads the label README."""
+    readme = readme or os.path.join(ROOT, "studios", studio, "README.md")
+    L = open(readme, encoding="utf-8").read().split("\n")
     idx = [i for i, l in enumerate(L) if l.startswith("```")]
     blocks = [(idx[k] + 1, idx[k + 1]) for k in range(0, len(idx) - 1, 2)]
     blk = []
@@ -328,9 +330,52 @@ def trailer(studios):
                os.path.join(OUT, "trailer.mp4"))
 
 
+def label():
+    """The label page: the whole catalog (every TRACKLIST, in order) as one spectrogram, printed
+    as text. Time runs down, low frequencies left; characters by rank, so the quietest ~half of
+    the cells are air. Catalog numbers mark where each album begins. Written into the root
+    README's first code block."""
+    W, H = 72, 56
+    steps = [(0.46, " "), (0.62, "·"), (0.74, ":"), (0.83, "-"), (0.90, "="), (0.95, "+"), (0.98, "*")]
+    studios = sorted(s for s in os.listdir(os.path.join(ROOT, "studios"))
+                     if os.path.isfile(os.path.join(ROOT, "studios", s, "TRACKLIST")))
+    files, marks, total = [], [], 0.0
+    for st in studios:
+        marks.append((total, st))
+        for slug in tracks(st):
+            f = mp3(st, slug)
+            files.append(f"file '{f}'")
+            total += duration(f)
+    with tempfile.TemporaryDirectory() as tmp:
+        lst, png = os.path.join(tmp, "list.txt"), os.path.join(tmp, "spec.png")
+        open(lst, "w").write("\n".join(files) + "\n")
+        ffmpeg("-f", "concat", "-safe", "0", "-i", lst, "-ac", "1", "-ar", "32000", "-lavfi",
+               "showspectrumpic=s=512x1024:orientation=horizontal:legend=0:color=intensity:scale=log:fscale=log,format=gray",
+               "-frames:v", "1", png)
+        raw = subprocess.run(["ffmpeg", "-v", "error", "-i", png, "-vf", f"scale={W}:{H}:flags=area",
+                              "-f", "rawvideo", "-pix_fmt", "gray", "-"], capture_output=True).stdout
+    vals = sorted(raw)
+    cuts = [(vals[min(len(vals) - 1, int(q * len(vals)))], c) for q, c in steps]
+    ch = lambda v: next((c for cut, c in cuts if v < cut), "#")
+    rowmark = {min(H - 1, int(t / total * H)): st for t, st in marks}
+    rows = [f"{rowmark.get(r, ''):>3}  " + "".join(ch(v) for v in raw[r * W:(r + 1) * W]).rstrip() for r in range(H)]
+    hms = "%02d:%02d:%05.2f" % (total // 3600, total % 3600 // 60, total % 60)
+    art = "\n".join(r.rstrip() for r in rows)
+    readme = os.path.join(ROOT, "README.md")
+    text = open(readme, encoding="utf-8").read()
+    a = text.index("```text\n") + len("```text\n")
+    b = re.compile(r"^```$", re.M).search(text, a).start()     # the line that closes the block
+    open(readme, "w", encoding="utf-8").write(text[:a] + art + "\n" + text[b:])
+    print(f"  README art: {len(files)} tracks, {hms}")
+
+
 def repo_card():
+    """The label cover: the root README's art, 2048×2048 like the album covers."""
     os.makedirs(OUT, exist_ok=True)
-    still(os.path.join(ROOT, "README.md"), os.path.join(OUT, "ffmpeg-music.png"), 1600, 900)
+    with tempfile.TemporaryDirectory() as tmp:
+        t = os.path.join(tmp, "label.txt")
+        cover_text(None, t, os.path.join(ROOT, "README.md"))
+        still(t, os.path.join(OUT, "ffmpeg-music.png"), 2048, 2048)
 
 
 def main():
@@ -348,7 +393,9 @@ def main():
                 fn(st)
     if only in (None, "trailer"):
         print("trailer…", flush=True); trailer(studios)
-    if only in (None, "covers"):
+    if only in (None, "label"):
+        print("label…", flush=True); label()
+    if only in (None, "covers", "label"):
         repo_card()
     print(f"done → {OUT}")
 
