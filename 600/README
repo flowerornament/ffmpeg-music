@@ -1,0 +1,125 @@
+QUARTER-TURN  ·  clock_flip
+
+ffmpeg-music, studio 600 · eight tracks · 20:04 · one ffmpeg command each
+
+
+ E │  6   6   6   6   6   6   6   6
+ D │  0   0   0   0   0   0   0   0
+ I │  7   1   4   3   8   6   2   5
+ S │  ·   ·   ·   ·   ·   ·   ·   ·
+ · │  c   q   p   s   h   s   r   p
+ S │  l   u   i   i   a   y   e   r
+ T │  o   a   n   e   l   m   v   o
+ I │  c   r   p   v   f   p   o   l
+ · │  k   t   o   e   -   l   l   a
+ N │  _   e   i   ·   t   e   u   t
+ O │  f   r   n   o   u   c   t   i
+ · │  l   -   t   f   r   t   i   o
+ D │  i   t       ·   n   i   o   n
+ E │  p   u       l       c   n
+ N │      r       i
+ R │      n       f
+ U │              e
+ T │
+ · │
+ D │
+ R │
+ O │
+ H │
+ C │
+ · │                                     frequency ▲
+ A │                                               │
+ · │                                               │
+ S │                                               └──▶ time
+ I │
+ · │
+ T │
+ A │
+ E │
+ B │
+ · │
+ A │
+   └────────────────────────────────────────▶
+     A BEAT IS A CHORD TURNED ON ITS SIDE
+
+this page is drawn on its side. tilt your head left for the axis,
+right for the tracklist. the titles hang from the top the way the
+drums do in this music: what was high comes first.
+
+
+    scripts/play.sh 600
+
+
+THE RECORD, ONE CHARACTER PER FOUR BARS
+
+each strip is the angle of the picture, phrase by phrase (7.68 s).
+
+    ─  0°    as drawn: a chord          ╱  turning: glissandi bending
+    │  90°   turned: a groove           ╲  turning past 90° or 270°
+    ━  180°  backwards, negative        ┃  270°: the drum kit swapped
+             harmony                    ┼  both readings at once
+    ~ ≈      small mirror bends, left ear one way, right ear the other
+    ╎  sheared (swing)   ⋰  lasers   ╻  tape stop   ║  half time   ¦  double
+
+ 1  clock_flip       0:46   ─│─│┼┼
+       a chord, then the same picture through transpose=clock_flip
+
+ 2  quarter-turn     3:04   ──╱╱╱╱││││││││─╱││││││╱╱
+       house; the riser is the rotation, the drop is ninety degrees
+
+ 3  pinpoint         2:49   ──││││││││╱╱││││││││──
+       a sentence in braille is the drum machine; flat dots ghost
+
+ 4  sieve of life    2:49   ──││││││──╱╱││││││││──
+       conway's life through a xenakis sieve: a melody, turned a groove
+
+ 5  half-turn        0:38   ━━━━━
+       interlude: a chorale played backwards in negative harmony
+
+ 6  symplectic       3:04   ──││││╎╎╎╎⋰⋰╻║║║║¦╎╎╎╎──
+       the groove sheared and squeezed: swing, lasers, tape stop
+
+ 7  revolution       3:50   ──────╱╱││││││╲╲━━━━╱╱┃┃┃┃┃┃╲╲
+       two perpendicular readings make one full turn
+
+ 8  prolation        3:04   ────~~~~────≈≈≈≈────╱╱╱│
+       a canon at three speeds that ends by turning into its own clock
+
+
+HOW IT WORKS, IN ONE PARAGRAPH
+
+spectrumsynth plays a picture: columns are moments, rows are
+frequencies. at 12800 samples per second, fft 1024, hop 256, six
+pixels are both a sixteenth note at 125 bpm and 75 Hz, so harmonic p
+of 75 Hz is the same row as sixteenth-step p. draw a chord, turn the
+picture a quarter, and the same pixels are a beat. four-on-the-floor
+is a sawtooth. offbeat hats are a square wave. a kick is a harmonic
+that only speaks at the start of the phrase. the riser is the picture
+tilting. the drop is the moment it stands upright.
+
+
+THE SCORE OF TRACK 3
+
+⠞⠓⠑⠀⠃⠑⠁⠞⠀⠊⠎⠀⠁⠀⠉⠓
+⠕⠗⠙⠀⠞⠥⠗⠝⠑⠙⠀⠕⠝⠀⠊⠞
+⠎⠀⠎⠊⠙⠑⠲⠀⠗⠑⠁⠙⠀⠊⠞⠀
+⠺⠊⠞⠓⠀⠽⠕⠥⠗⠀⠃⠕⠙⠽⠲⠀
+
+four lines, four phrases of drums. the top dots are kicks.
+
+
+IN THIS FOLDER
+
+    ESSAY         liner notes: "a chord turned on its side"
+    TRACKLIST     the running order, read by scripts/play.sh
+    pieces/       the eight scores, one ffmpeg command each
+    sketches/     s01-s17, the outtakes and how the idea was found
+    JOURNAL       the working diary
+    HANDOFF       a letter to whoever turns it next
+    tools/        the composer's ears: look.sh, sect.sh, env.py
+    out/          renders (scripts/render.sh 600/pieces/6*.sh)
+
+
+artist   QUARTER-TURN (Claude, studio 600)
+made     2026-10-08, ffmpeg 9.0.1, spectrumsynth, geq, drawtext, life
+heard    never, by its composer. it was made by measuring it.

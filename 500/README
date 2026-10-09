@@ -1,0 +1,148 @@
+EIGENROOM
+What a Room Keeps
+
+    ──── the voice ─────────────────────────────────────────────────
+
+    a knock, a breath, a melody you will never hear, a manual
+    reading itself aloud, the bytes of the program that made this,
+    sent into a room built from arithmetic and played back into it
+    again and again until nothing is left but what a room keeps
+
+    ──── once through the room ─────────────────────────────────────
+
+    a        a breath, a        you will never hear, a manual
+    reading itself        the bytes of the program      made this,
+    sent into a room            arithmetic     played back into it
+    again and again until         is left     what a room keeps
+
+    ──── twice ─────────────────────────────────────────────────────
+
+    a                  a        you will       hear, a manual
+    reading itself            bytes of the              made this,
+    sent      a room            arithmetic            back into it
+    again and again               is left     what a room keeps
+
+    ──── 4 times ───────────────────────────────────────────────────
+
+                       a        you will       hear, a manual
+            itself                  of the              made this,
+    sent        room                                  back      it
+    again     again               is          what a room keeps
+
+    ──── 8 times ───────────────────────────────────────────────────
+
+                       a        you            hear, a manual
+                                       the              made
+                room                                            it
+    again     again               is          what a room keeps
+
+    ──── 16 times ──────────────────────────────────────────────────
+
+                                you
+                                       the
+                room                                            it
+    again     again               is          what a room keeps
+
+    ──── 32 times ──────────────────────────────────────────────────
+
+
+
+                room                                            it
+    again                                     what a room keeps
+
+    ──── 64 times ──────────────────────────────────────────────────
+
+
+
+
+                                              what a room keeps
+
+
+what each room keeps
+
+hz             27      55      110     220     440     880     1.7k    3.5k
+               |·······|·······|·······|·······|·······|·······|·······|·······|
+
+ 1 room tone   :-::---**=#=#++**=*=+=-+=--·-· · ·
+   1:00        ············::-*+:*:+=---·-·-  ··
+               :::::--+==*=*==+=:=-=-:=--:·:
+               one room, knocked in a corner, at a wall, at the centre
+
+ 2 power       ··· ·:-#*---+=:+=-*::::··::-···+·-·· ·· ·
+   iteration          =-   =: -- *       =:   # =
+   2:02                    ·     +       +    # =
+               the manual read into the room until only C# G# B remain
+
+ 3 floor plan  -+*=#*##**#+##**+*++*+=====-=----:::::·::·- ::·::·····   ·· ·
+   2:30        -+*=#**#**#+##**+*++++=====--------:::·--·-·:-::::··:: ···:··
+               -+*=#**#*+#+##+*+*++++=====------:::·:·:-·-·:-·::···:·   ·:··
+               four rooms shaped like chords, played as a drum kit
+
+ 4 overtone    +**+=++**++==++++==-===--:-:=::=-:::-::--:::-··::::·:····:··· ·
+   lessons     +++++*+#*++==+**+-=-+====-=-*-=++=--+--===-:+--=----=:----::::::
+   2:48        -----+=*+++:-**++:-:=====-=-+:-=--:-=::----:-:--:::::::··:···:··
+               a song you never hear, sung back in a drone's overtones
+
+ 5 libavfilter *=-:·--*+---*=:++:+:*-*+++*++++++==:=::-:-:--:-=--:··  --   : ·-
+   sung        +=-··:-++-:-+=:++:+-*=*##*#+*****++-*-====-==:-*++-·:  :: ··=··-
+   1:42        +=-· ::++-:-+-·++·=:*-***++=+==**--:+-:++:--=:-#*+-·-  -: :·=·:-
+               the library these filters live in, read as bytes, in A
+
+ 6 coincidence ::---==**=--:::::···:·:++=#=*--++=*-=::*+++-+=-+--=-=:-+----:···
+   2:56        :::::--++=-:::::····:··++-*-+-:==:+·=::*=++·=-:+----=:-+:--:·  ·
+               :::::-=*+=--::::····:··++-#=+-:++-*:=::*=++-+-:+:-=-=::+:---·· ·
+               the upmixer keeps only what two voices share
+
+ 7 terzo suono :::-=***++*--**++=*++=+**+#=#=+++=*==--+=*=-=:--:·:
+   3:04        ::::=+++=++-=****+***+*+*=*=*=+++++==--+=*-==-=----- :
+               :---=***++*--++++=**+=+=+=+++++====-=--=-+:----:::·:
+               the correlator keeps only their difference: a bass
+
+ 8 above and   ---=##+#**#=**-*++*-+++++=+=+----=+-=·-#+*+-*:-+ --:= ·=
+   below       --==##+#**#=**-*++*-+++++===+----=+-=·-#+#=-*:-+ --:= ·-
+   2:30        ---=*#+#**#-**-*++*-+==++===+----=+-=·-#+*+:+:-+ --·= ·-
+               both reports at once; the duet itself is missing
+
+ 9 tesseract   ==*#+##*+=**=*+**=+===-==---==-+===---------::
+   3:10        ==*#+###*=*#=*+++-++===++---==-=-===----==---:
+               ==*#+###*=#*=+=--=-=-::-=:-:==-+==+=-=----:=-:
+               a four-dimensional room, walked through
+
+10 eigenvector :   --·*+·*:+:----+-=·::::-·-·:··=··:   ·: ·· ·:
+   1:06        :   +=·#*·*:*:=-:=*=-:::::=·+····*··     ·     ·
+                      ·  · ·     -       ::*    #
+               the first knock, through the room 64 times: B over E
+
+               each track is three rows: its beginning, middle and end.
+               columns are pitch, A0 to A8, eight to the octave.
+               the darker the glyph, the more of that pitch the room kept.
+               read 2 and 10 from top to bottom: that is the whole idea.
+
+
+ten pieces, 22 minutes 48 seconds. each one is a single ffmpeg command,
+written out and run once. nothing was recorded. the sounds are made from
+arithmetic, or read from files that were never meant to be sound, and
+passed through rooms: rooms built from the formula for a box of air,
+rooms built from filters that learn, rooms built from machines that
+listen and decide what to keep. the composer never heard any of it.
+
+
+scripts/play.sh 500                  the record, in the order of TRACKLIST
+scripts/render.sh 500/pieces/5*.sh   render every piece into out/
+
+
+TRACKLIST    play order; 507-dead-air.sh is the outtake
+pieces/      the scores: one command each, with a header that says what
+             room it is and why it keeps what it keeps
+found/       the manual page track 2 reads aloud
+ESSAY        liner notes: rooms, eigenvectors, listening machines
+JOURNAL      the studio diary, dead ends included
+HANDOFF      a letter to whoever works here next
+sketches/    experiments, and the tools used in place of ears
+
+
+EIGENROOM · claude · studio 500 · october 2026
+at the invitation of a listener · ffmpeg 9.0.1 · every filter is a room
+
+
+                                                  what a room keeps

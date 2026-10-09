@@ -1,0 +1,95 @@
+0.4296875 Hz
+
+RASTRUM
+
+
+the magnitude image of this record. read it upward, like a spectrum.
+lit rows: k = 0 mod 4. a comb of spacing four: the record is in four.
+
+row      Hz
+ 36  15.469  · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+ 35  15.039  ································································
+ 34  14.609  · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+ 33  14.180  ································································
+ 32  13.750  ██ 8 SNOW            a chorale, one more JPEG generation each time
+ 31  13.320  ································································
+ 30  12.891  · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+ 29  12.461  ································································
+ 28  12.031  ██ 7 PHANTOM BASS    the bass is only where the two ears meet
+ 27  11.602  ································································
+ 26  11.172  · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+ 25  10.742  ································································
+ 24  10.312  ██ 6 PROLATION       one score, four sample rates: x1 x1.5 x2 x3
+ 23   9.883  ································································
+ 22   9.453  · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+ 21   9.023  ································································
+ 20   8.594  ██ 5 KONTAKTE STAIR  a chord falls seven octaves into a rhythm
+ 19   8.164  ································································
+ 18   7.734  · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+ 17   7.305  ································································
+ 16   6.875  ██ 4 BESSEL          one number rolls a beat, then deletes it
+ 15   6.445  ································································
+ 14   6.016  · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+ 13   5.586  ································································
+ 12   5.156  ██ 3 EVERY NOTE ONCE each note once per bar; phase picks the order
+ 11   4.727  ································································
+ 10   4.297  · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+  9   3.867  ································································
+  8   3.438  ██ 2 OVERTONE METER  harmonic h is struck h times per bar
+  7   3.008  ································································
+  6   2.578  · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+  5   2.148  ································································
+  4   1.719  ██ 1 RHYTHMICON      harmonics 1-16 of the bar enter one per bar
+  3   1.289  ································································
+  2   0.859  · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·
+  1   0.430  ── the bar. 2.327 s. one column. one period. a root too low
+  0   0.000  ·· DC. silence. the edge of the image
+
+
+the phase image of this record. where in its period each track lands.
+
+1   0:00  ▲                          rhythmicon       0:56   F = 0.4297 Hz
+2   0:56   ▲                         overtone meter   3:06   F = 0.4297 Hz
+3   4:02       ▲                     every note once  2:57   F = 0.4079 Hz
+4   6:59          ▲                  bessel           2:37   F = 0.4589 Hz
+5   9:35             ▲               kontakte stair   2:38   F = 0.4297 Hz
+6  12:14                ▲            prolation        2:48   F = 0.2864 Hz
+7  15:01                   ▲         phantom bass     2:57   F = 0.4297 Hz
+8  17:58                       ▲     snow             3:03   F = 0.3056 Hz
+   21:01                          ▲  end
+
+
+side one, the law: the raster is built, then put to work.
+side two, the dissolve: harmony slows into rhythm, multiplies, leaves the
+loudspeakers, and is buried in its own compression.
+
+
+every sound on this record is drawn as two images, magnitude and phase, and
+turned into audio by ffmpeg's spectrumsynth. the images are 32768 rows tall.
+row k sounds at k times F, and F = sample rate / 65536. at 28160 samples per
+second F is 0.4296875 Hz: one cycle every 2.327 s, which is the bar, and every
+row is a harmonic of it. a row is a pitch. a comb of rows is a rhythm. the
+slope of the phase is time. choosing a key chooses a tempo: tracks 1, 2, 5 and
+7 sit on 0.4296875 Hz, the others tune the raster elsewhere, so each track's
+F above is its bar and its root at once.
+
+every track is one ffmpeg command, run once. nothing was recorded.
+nothing was heard: the composer has no ears. ESSAY says what that means.
+
+
+scripts/play.sh 100
+
+
+in this folder
+
+  TRACKLIST    the running order. scripts/play.sh 100 plays it.
+  ESSAY        liner notes. a theory of the raster, and notes from a composer
+               who cannot hear.
+  pieces/      the scores. each file is one ffmpeg command and the whole piece.
+  out/         renders: mp3, spectrogram, loudness.
+  JOURNAL      how the record was made, sketch by sketch.
+  HANDOFF      a letter to whoever composes here next.
+  sketches/    the trail: calibrations, kits, ladders, codecs.
+
+
+RASTRUM · studio 100 · ffmpeg-music · ffmpeg 9.0.1 spectrumsynth + geq

@@ -1,0 +1,16 @@
+# 0.4296875 Hz -- RASTRUM
+# one fundamental: the bar is the root.  read top to bottom; play with scripts/play.sh 100
+#
+# side one: the law
+108-rhythmicon.sh        # overture. harmonics 1..16 of the bar, entering one per bar
+102-overtone-meter.sh    # harmonic h struck h times per bar
+103-every-note-once.sh   # magnitude is the mode, phase is the melody
+106-bessel.sh            # beta = 2.405: the downbeat disappears
+#
+# side two: the dissolve
+101-kontakte-stair.sh    # the chord falls until it is a rhythm
+104-prolation.sh         # one score, four sample rates
+107-phantom-bass.sh      # the bass is in the listener
+105-snow.sh              # the chorale, buried in its own compression
+#
+# outtakes (in pieces/, not on the record): none -- the sketches are in sketches/

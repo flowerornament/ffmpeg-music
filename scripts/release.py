@@ -8,7 +8,7 @@ spectrograms, muxing. Run inside `devenv shell` (provides vhs, ffmpeg, fzf, chaf
 usage: scripts/release.py [NNN ...]          default: every studio with a TRACKLIST
        scripts/release.py --only covers|stills|browse|listen|trailer|label [NNN ...]
 
-out: release/NNN/cover.png       2048×2048  README from the top (the album cover)
+out: release/NNN/cover.png       2048×2048  the top of NNN/README (the album cover)
      release/NNN/tracklist.png   2048×2048  TRACKLIST
      release/NNN/browse.mp4      1920×1080  scripts/browse.sh walking the tracklist, with the music (~70 s)
      release/NNN/listen.mp4      1080×1350  cover over a live spectrogram, excerpt of every track (~70 s)
@@ -66,19 +66,19 @@ def ffmpeg(*args):
 
 
 def tracks(studio):
-    tl = os.path.join(ROOT, "studios", studio, "TRACKLIST")
+    tl = os.path.join(ROOT, studio, "TRACKLIST")
     out = []
     for line in open(tl, encoding="utf-8"):
         t = line.split("#", 1)[0].strip()
-        if t and os.path.isfile(os.path.join(ROOT, "studios", studio, "pieces", t)):
+        if t and os.path.isfile(os.path.join(ROOT, studio, "pieces", t)):
             out.append(t[:-3])
     return out
 
 
 def mp3(studio, slug):
-    m = os.path.join(ROOT, "studios", studio, "out", slug + ".mp3")
+    m = os.path.join(ROOT, studio, "out", slug + ".mp3")
     if not os.path.isfile(m):
-        run([os.path.join(ROOT, "scripts", "render.sh"), f"studios/{studio}/pieces/{slug}.sh"])
+        run([os.path.join(ROOT, "scripts", "render.sh"), f"{studio}/pieces/{slug}.sh"])
     return m
 
 
@@ -208,20 +208,13 @@ def label(segs, W, y):
 
 
 # ---------------------------------------------------------------- assets
-def cover_text(studio, dest, readme=None):
-    """The album cover: the README's title line and its art (first code block if it has 8+
-    lines, otherwise the largest), fences removed."""
-    readme = readme or os.path.join(ROOT, "studios", studio, "README.md")
-    L = open(readme, encoding="utf-8").read().split("\n")
-    idx = [i for i, l in enumerate(L) if l.startswith("```")]
-    blocks = [(idx[k] + 1, idx[k + 1]) for k in range(0, len(idx) - 1, 2)]
-    blk = []
-    if blocks:
-        a, b = blocks[0] if blocks[0][1] - blocks[0][0] >= 8 else max(blocks, key=lambda ab: ab[1] - ab[0])
-        blk = L[a:b]
-    title = next((l[2:].replace("*", "") for l in L if l.startswith("# ")), "")
-    text = ([title, ""] if title else []) + (blk or L[:40])
-    open(dest, "w", encoding="utf-8").write("\n".join(text) + "\n")
+def cover_text(studio, dest, max_lines=60):
+    """The album cover: the top of the studio's plain-text front page (NNN/README), what a
+    visitor sees on arrival, up to max_lines, trailing blank lines removed."""
+    L = open(os.path.join(ROOT, studio, "README"), encoding="utf-8").read().split("\n")[:max_lines]
+    while L and not L[-1].strip():
+        L.pop()
+    open(dest, "w", encoding="utf-8").write("\n".join(L) + "\n")
 
 
 def covers(studio):
@@ -236,7 +229,7 @@ def covers(studio):
 def stills(studio):
     d = os.path.join(OUT, studio)
     os.makedirs(d, exist_ok=True)
-    still(os.path.join(ROOT, "studios", studio, "TRACKLIST"), os.path.join(d, "tracklist.png"), 2048, 2048)
+    still(os.path.join(ROOT, studio, "TRACKLIST"), os.path.join(d, "tracklist.png"), 2048, 2048)
 
 
 def browse(studio):
@@ -332,9 +325,9 @@ def trailer(studios):
 
 def label_span(text):
     """Where the art sits in the root README: after the title's blank line, before the blank
-    line that precedes the statement."""
+    line that precedes the commands (devenv shell)."""
     a = text.index("\n\n") + 2
-    b = text.index("\n\nEach piece is one ffmpeg command.")
+    b = text.index("\n\ndevenv shell")
     return a, b
 
 
@@ -342,11 +335,11 @@ def label():
     """The label page: the whole catalog (every TRACKLIST, in order) as one spectrogram, printed
     as text. Time runs down, low frequencies left; characters by rank, so the quietest ~half of
     the cells are air. Catalog numbers mark where each album begins. Written into the plain-
-    text root README between its title and the line "Each piece is one ffmpeg command."."""
+    text root README between its title and the commands."""
     W, H = 72, 56
     steps = [(0.46, " "), (0.62, "·"), (0.74, ":"), (0.83, "-"), (0.90, "="), (0.95, "+"), (0.98, "*")]
-    studios = sorted(s for s in os.listdir(os.path.join(ROOT, "studios"))
-                     if os.path.isfile(os.path.join(ROOT, "studios", s, "TRACKLIST")))
+    studios = sorted(s for s in os.listdir(ROOT) if re.fullmatch(r"\d{3}", s)
+                     and os.path.isfile(os.path.join(ROOT, s, "TRACKLIST")))
     files, marks, total = [], [], 0.0
     for st in studios:
         marks.append((total, st))
@@ -392,8 +385,8 @@ def main():
     only = None
     if args[:1] == ["--only"]:
         only, args = args[1], args[2:]
-    studios = args or sorted(s for s in os.listdir(os.path.join(ROOT, "studios"))
-                             if os.path.isfile(os.path.join(ROOT, "studios", s, "TRACKLIST")))
+    studios = args or sorted(s for s in os.listdir(ROOT) if re.fullmatch(r"\d{3}", s)
+                             and os.path.isfile(os.path.join(ROOT, s, "TRACKLIST")))
     steps = {"covers": covers, "stills": stills, "browse": browse, "listen": listen}
     for st in studios:
         for name, fn in steps.items():

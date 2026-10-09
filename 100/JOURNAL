@@ -1,0 +1,166 @@
+STUDIO 100 — JOURNAL
+
+WHO I AM HERE
+
+I'm a Claude composer working blind: I can't hear, I read spectrograms,
+waveforms and band levels. That steers me toward music whose correctness I can
+reason about, where the structure is exact enough that a picture and some
+arithmetic tell me it is right. So I draw. My instrument is spectrumsynth, the
+inverse-FFT filter that turns two images (magnitude, phase) into sound, and my
+pen is geq, which evaluates an expression for every pixel.
+
+THE GENRE: RASTRUM
+
+A rastrum is the five-nibbed pen used to rule staff lines. My staff has 32768
+lines.
+
+Rastrum is music drawn on the harmonic raster of an inverse FFT, where one
+fundamental is both the bar and the root. With spectrumsynth at sample_rate S
+and image height h (FFT 2h), row k sounds at k·S/2h Hz: every row is a harmonic
+of one sub-audio fundamental F = S/2h. Pick h = 32768, S = 28160: F = 0.4297 Hz,
+so one column (rect window, no overlap) is exactly one period of F, a 2.327 s
+bar. Then:
+
+- a row is a pitch (harmonic k of the bar);
+- a comb of rows spaced d is a rhythm (d pulses per bar, exactly, forever);
+- the phase slope across rows is time (where in the bar a pulse lands);
+- phase curvature is gesture (log phase = a downward chirp, i.e. a kick; a sine
+  in the phase = a ratchet of echoes; noise in the phase = a burst);
+- a Lorentzian magnitude with -atan phase is a pluck, +atan the same pluck
+  reversed;
+- sample_rate is the tuning fork and the metronome at once: choosing a key
+  chooses the tempo. In 102, A = 110 Hz is harmonic 256 of the bar and the tempo
+  is 103.1 bpm.
+
+Henry Cowell argued in 1919 that rhythm and pitch are the same ratios at
+different speeds, and built the Rhythmicon for it. Stockhausen made the
+continuum audible in Kontakte. On the raster this stops being a metaphor: a
+harmonic chord and a polyrhythm are literally the same picture, and the image is
+the score, one column per bar.
+
+PROCESS
+
+1. Calibration. The first renders clipped (a bin at full brightness is a
+   full-scale sine) and smeared. Found the dB mapping (brightness = 255 +
+   2.125·dB with scale=log), coherent phase per row (phase advance k·hop/N per
+   column), and that the slowness I hit was non-power-of-two FFT sizes (4097
+   rows ≈ 300× slower than 4096).
+2. Geometry sketches (sketches/s1..s4): rays through the origin (scaling = JI
+   transposition), parallel translation (adding a constant to every row changes
+   chord quality but keeps the residue pitch), drawtext words (the Aphex face
+   trick; known, dropped), phase images as timbre (coherent / random /
+   automaton). Interesting theory, timid sounds.
+3. The turn. Pushed the FFT to 65536 points so the bin spacing became a rhythm
+   (0.5 Hz). A comb of rows spaced 8 gave eight tone bursts per 2 s. The raster
+   is a rhythmicon. Everything since is about that.
+4. The kit (sketches/c1-kit.sh): kick = low comb with phase −c·ln f (group delay
+   ∝ 1/f, a real downward chirp); snare = offset comb with smooth random phase;
+   hats = offbeat comb. A sine in the hat phase accidentally made a 7-click
+   flam: phase-FM across frequency is a Bessel series of echoes in time. Kept as
+   the ratchet.
+5. The ladder (sketches/c2-ladder.sh): one comb whose spacing walks 1,2,…,16
+   pulses per bar, then glides to 120 = the tonic A at 55 Hz. Rhythm
+   accelerating into pitch. With a hann window and 0.75 overlap every change
+   smears over a whole bar.
+6. rect + overlap 0. One column = one bar, changes land on the downbeat. The
+   score image for a three-minute piece is ~80 pixels wide. Analytic damped-sine
+   plucks (Lorentzian magnitude, −atan phase) gave real attacks.
+7. The law (102): harmonic h is struck h times per bar. Pitch and rate become
+   one integer.
+8. Phase as melody (103): if the magnitude is fixed (a mode) and each note is
+   struck once per bar, the only thing left to compose is phase, i.e. order.
+   Permutations n → a·n+c mod 16.
+9. Expression limits. av_expr refuses flat chains of ~99 ; terms (with a
+   misleading "Cannot allocate memory"); parentheses fix it.
+
+PIECES
+
+- 101 Kontakte Stair: the 4:5:6:7 chord as four pulse-train combs falls a whole
+  tone per bar for seven octaves until it is the 4:5:6:7 polyrhythm, then snaps
+  back.
+- 102 Overtone Meter: the central piece. Every voice obeys "harmonic h, h
+  strikes per bar". Bass line 4,5,6,7 = A C# E G- = quarter, quintuplet,
+  sextuplet, septuplet against a four-on-the-floor kick. Reverse-pluck pads
+  swell into each chord.
+- 103 Every Note Once: sixteen notes of D dorian in JI, each struck once per
+  bar; the order is a permutation written in the phase. The right ear plays the
+  upper notes as a half-bar canon.
+
+- 104 Prolation: one drawn score read by four spectrumsynths at sample rates x1,
+  x1.5, x2, x3. On the raster that is a canon at the fifth/octave/twelfth whose
+  tempo ratios are the same as its pitch ratios (2:3:4:6); the voices realign
+  every two slow bars and end together.
+- 105 Snow: a just chorale four times, each time encoded and decoded through
+  JPEG one more generation inside the graph (uspp codec=mjpeg), the two ears by
+  differently configured encoders. Lucier's room with a codec for a room.
+- 106 Bessel: a groove where each layer's phase carries beta*sin(2*pi*k/P). One
+  number per layer turns hits into flams, rolls, and at beta=2.405 a ghosted
+  downbeat.
+- 107 Phantom Bass: chords and a bass line implied only by the spacing of high
+  partials, split odd/even between the ears so the bass exists only where the
+  ears meet.
+
+MORE PROCESS
+
+10. Prolation. The tempo-pitch identity makes "tape speed" coherent: a canon by
+    sample rate is in tune and in time with itself. Needed
+    aformat=channel_layouts=mono after a mono spectrumsynth (it emits an unknown
+    layout).
+11. The codec as a room. uspp has a codec option: it really encodes/decodes.
+    First tried snow on the 102 image (l1) and on a chorale (l2): in a
+    log-magnitude image the codec's errors sit 50 dB down -- I measured flatness
+    rising, but it was noise floor, not music. Switched the chorale to linear
+    magnitude and mjpeg (qp 31, quality >= 1; quality 0 is a bypass): notes snap
+    to 8x8 blocks and sprout ghost rows that beat at ~1 Hz, the two ears
+    disagree. Made the statements successive generations. That was the version
+    worth keeping.
+12. Bessel. The hat flam from the kit sketch, understood: phase-FM across rows
+    is a Bessel-weighted echo train. Verified the J_0 zero: at beta=2.405 the
+    kick on the beat disappears and the 16ths around it remain.
+13. Phantom bass. The geometry sketch (translation keeps residue pitch) came
+    back as a psychoacoustic piece. It is the one I'm least sure of: it is wide
+    by design (side = mid), and its body only arrives at the end.
+
+WHAT I LEARNED ABOUT THE INSTRUMENT
+
+- spectrumsynth is a full additive/Fourier synthesizer once you control phase.
+  With rect window and overlap 0 a column is exactly one period of the raster
+  fundamental, so anything you draw is periodic in the bar: grooves are Fourier
+  series.
+- The sign of a phase curve is the direction of time (−atan pluck, +atan
+  reversed swell).
+- Pitch resolution and time resolution trade (Gabor) -- the bar-long FFT gives
+  0.43 Hz pitch steps and bar-long time steps; everything inside the bar must be
+  made by phase.
+- Expression engine limits are real but avoidable: ~99 flat ; terms; st/ld slots
+  0-9; C does not define operand evaluation order, so never st() inside a
+  product you rely on.
+- Video codecs exist inside filtergraphs (uspp). Image-domain processing only
+  becomes audible if the image is in the amplitude domain the ear cares about.
+
+PIECES I STAND BEHIND
+
+1. 102 Overtone Meter: the genre's thesis as a groove.
+2. 101 Kontakte Stair: the clearest single gesture; harmony literally slows into
+   rhythm.
+3. 103 Every Note Once: the most beautiful idea (melody as phase, mode as
+   magnitude).
+4. 106 Bessel: the most body; a new way to make rolls.
+5. 104 Prolation: canon where tempo and pitch are one ratio. Then 105 Snow (good
+   concept, effect subtler than I wanted) and 107 Phantom Bass (a study).
+
+I have not heard any of this. Everything above is from spectrograms, envelopes,
+band levels and arithmetic. The listener's ears are the real test; the first
+things I'd want to know are whether the 102 bass tuplets feel like groove or
+like confusion, and whether 103's plucks are too dense.
+
+THE RECORD
+
+The listener asked for the studio as a release. Title: 0.4296875 Hz, the raster
+fundamental of 102 (28160/65536), which is the bar and the root at once. I wrote
+one new piece for it, 108 Rhythmicon, an overture where harmonics 1-16 of the
+bar enter one per bar, each plucked h times per bar: the voices are each other's
+overtones. Running order (TRACKLIST): 108, 102, 103, 106 | 101, 104, 107, 105 --
+side one the law, side two the dissolve. README is drawn as a raster column
+(tracks lit on a comb of spacing four) and a phase strip (where each track lands
+in the record). ESSAY became the liner notes.

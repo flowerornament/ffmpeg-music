@@ -1,0 +1,106 @@
+WAYS TO ABUSE FFMPEG INTO AN INSTRUMENT — BRAINSTORM
+
+Ideas, not instructions. ✓ = verified in this studio.
+
+VIDEO → SOUND
+
+- ✓ spectrumsynth as a wavetable organ. Any video source becomes a magnitude
+  spectrum: cellauto (rule 30/110), life, mandelbrot zooms, zoneplate, perlin,
+  sierpinski, gradients.
+- Paint the harmony. Use geq to draw bright horizontal lines at the bin rows of
+  a chord's partials, gated by T, so a progression becomes a moving image.
+- Text as spectrum. drawtext writes a word into the spectrogram, and the letters
+  become formants (Aphex Twin's face trick, run backwards).
+- Phase as a separate instrument. Keep the magnitude fixed and animate only the
+  phase video: the same spectrum gains roughness, swirl or chorus.
+- Video filters as spectral processors. Run boxblur (spectral smear), edgedetect
+  (onset sharpening), lagfun (spectral freeze/sustain), tmix (spectral reverb),
+  rotate (frequency↔time swap), hflip/vflip (reverse or invert the spectrum),
+  xfade (spectral morph) or displace (spectral warping) between a showspectrum
+  of one sound and spectrumsynth. This is audio→video→audio inside one graph.
+- Chimeras (Hecker). blend the spectrogram images of two sounds: magnitude from
+  one, phase from the other.
+- Codec damage to a spectrum. Heavy video compression of a spectrogram is
+  impossible in a single pass, but noise, pixelize, posterize and dctdnoiz
+  imitate it. posterize amounts to spectral quantization.
+
+ENCODERS AND DECODERS AS INSTRUMENTS
+
+- Lossy codecs at absurd settings. Opus at 6 kbps, mp2 at 8k, AAC with tiny
+  bandwidth, gsm, adpcm_*, g722, g726 at 2 bits, roq_dpcm, nellymoser. Each
+  codec has its own "voice" of failure.
+- Bitstream filters as performers. noise=amount=N corrupts packets,
+  noise=drop=expr drops packets on a schedule (a rhythm made from packet loss),
+  and -bsf setts/pts rewrite time.
+- Wrong-codec decode of right-format bytes. Input -f s16le of an mp3 file, -f
+  mulaw of a PNG, -f f32be of a font (floats from text are wild).
+- Dither and noise-shaping as texture. aresample=dither_method=... at 8-bit
+  output, acrusher with its log/lin modes.
+- Resampler abuse. aresample with filter_size=1, phase_shift=0, cutoff=0.1
+  produces aliasing on purpose; tune the aliasing by choosing the rates.
+
+FOUND BYTES
+
+- ✓ The ffmpeg binary reads itself. Fonts, dylibs, /usr/share/dict/words, the
+  downloaded docs and the system's kernel caches can all be read as audio.
+- subfile protocol to cut exact byte ranges, so a file can be "played" in loops
+  tuned by byte length (loop period = bytes/rate).
+- concat: protocol stitches byte ranges into a sequence, so a score of offsets
+  is written into the command.
+- data: URIs. Claude types waveforms by hand in base64: single-cycle wavetables,
+  a drum hit, a microtonal table.
+- Endianness and channel-count lies. -ac 7, -f s24be and similar turn structured
+  data into polyrhythmic stereo.
+
+THE EXPRESSION ENGINE AS A SYNTHESIZER
+
+- ✓ Persistent variables make recursive DSP possible: oscillators, filters,
+  envelopes.
+- GENDYN (Xenakis). Breakpoint waveforms whose points random-walk between
+  mirrors.
+- Chaotic systems: logistic map, Lorenz and Chua attractors as oscillators. Tune
+  them by the integration step.
+- Physical models. A two-mass spring, a bowed-friction stick-slip, a bouncing
+  ball (the Risset rhythm turned physical).
+- Pulsar synthesis (Roads). One waveform cycle plus silence, with rhythm and
+  pitch on a single control.
+- ✓ Closed-form harmony: modes, chords and voice leading in one line.
+- aeval as a custom effect: waveshapers, wavefolders, sample-and-hold, bitwise
+  ops (bitand/bitor on sample ints = bytebeat).
+- Bytebeat inside aevalsrc. t*(t>>5|t>>8) written with floor/bitand, at 8 kHz,
+  then resampled.
+
+FILTERS PUSHED PAST THEIR PURPOSE
+
+- aecho with decays ≈ 0.99 gives tuned comb resonators (Karplus-Strong) that
+  "play" whatever passes through.
+- afir with an IR synthesized in the same graph: a chord as the IR (everything
+  becomes that chord), a click train as the IR (rhythmic reverb),
+  mandelbrot→spectrumsynth as the IR.
+- Lucier's I Am Sitting in a Room. Chain the same afir room 8–16 times with
+  normalization; asplit taps after each pass, concatenated as movements.
+- afftdn/anlmdn/afwtdn denoisers fed pure noise "hallucinate" tonal residue.
+- adynamicequalizer, sidechaincompress and sidechaingate between unrelated
+  generators turn one rhythm into another's breathing.
+- afreqshift/aphaseshift give inharmonic bells from harmonic sources and
+  barber-pole effects.
+- headphone/sofalizer/surround/virtualbass/dialoguenhance put the upmixers and
+  repair tools to work as instruments.
+- asendcmd as the score. Timed parameter changes (chord changes on a resonator
+  bank) written as text in the command.
+- atempo and asetrate chains at extreme ratios: asetrate=480 then resample gives
+  a 100× slowdown and new pitch worlds.
+- apulsator, tremolo, vibrato at audio rates become AM/FM synthesis made from
+  effect units.
+
+COMPOSITION AND STRUCTURE
+
+- Coprime counters (Autechre): form emerges from patterns of 5, 7, 11 and 13
+  steps meeting.
+- Barbieri gate scores: a pitch row against a gate row against an octave row.
+- Risset/Shepard on any parameter: endless rises in tempo, filter or density.
+- Radigue's crossfades: one 10-minute gesture.
+- Ikeda's palette: sine, click, noise, silence, data, at threshold frequencies;
+  otoacoustic ear tones (Amacher).
+- Multi-output scores: one command writes the audio AND its spectrogram/video.
+  The piece is audiovisual by construction.

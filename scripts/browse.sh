@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 self=scripts/browse.sh
 
 list() {
-  for d in studios/*/; do
+  for d in [0-9][0-9][0-9]/; do
     s=$(basename "$d")
     for f in "$d"pieces/*.sh "$d"sketches/*; do
       [ -f "$f" ] || continue
@@ -29,7 +29,7 @@ find_art() { find "$1" -maxdepth 3 -name "$2" -type f -print0 2>/dev/null | xarg
 bg_render() {  # $1 file  $2 studio  $3 base
   lock="$2/out/$3.rendering"; mkdir -p "$2/out"
   [ -f "$lock" ] && return
-  [ "$(ls studios/*/out/*.rendering 2>/dev/null | wc -l)" -ge 3 ] && return   # be kind to the composers' CPUs
+  [ "$(ls [0-9][0-9][0-9]/out/*.rendering 2>/dev/null | wc -l)" -ge 3 ] && return   # be kind to the composers' CPUs
   touch "$lock"
   ( set -m; ( if [[ $1 == *.sh ]]; then nice -n 10 scripts/render.sh -f "$1" >/dev/null 2>&1
              else ffmpeg -hide_banner -loglevel error -y -i "$1" \
@@ -104,12 +104,12 @@ studio_of() { dirname "$(dirname "$1")"; }
 case "$1" in
   --list) list; exit ;;
   --preview) preview "$2"; exit ;;
-  --journal) pager "$(studio_of "$2")/JOURNAL.md"; exit ;;
-  --handoff) pager "$(studio_of "$2")/HANDOFF.md"; exit ;;
+  --journal) pager "$(studio_of "$2")/JOURNAL"; exit ;;
+  --handoff) pager "$(studio_of "$2")/HANDOFF"; exit ;;
   --render) [[ $2 == *.sh ]] && scripts/render.sh -f "$2"; printf '\n(press enter)'; read -r; exit ;;
 esac
 
-trap 'scripts/play.sh --stop; rm -f studios/*/out/*.rendering' EXIT
+trap 'scripts/play.sh --stop; rm -f [0-9][0-9][0-9]/out/*.rendering' EXIT
 list | fzf --listen --ansi --delimiter='\t' --with-nth=2 --no-sort --layout=reverse \
   --prompt='ffmpeg-music ▸ ' \
   --header='enter play · ^x stop · ^r render · ^j journal · ^o handoff · ^e source · ^g refresh · esc quit' \

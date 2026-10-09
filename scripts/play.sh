@@ -2,7 +2,7 @@
 # Play pieces and sketches live. A .sh piece/sketch runs its single ffmpeg command and
 # streams to ffplay; an audio file in sketches/ just plays.
 # usage: scripts/play.sh 002            number/prefix, searched in every studio's pieces + sketches
-#        scripts/play.sh studios/300    a studio as an album (its TRACKLIST, else pieces then sketches)
+#        scripts/play.sh 300    a studio as an album (its TRACKLIST, else pieces then sketches)
 #        scripts/play.sh sketches       every studio's sketches
 #        scripts/play.sh path/to/x.sh   explicit file
 #        scripts/play.sh                every piece        -l loop   -s 42 start at 42s
@@ -33,7 +33,7 @@ esac
 loop=0; ss=0
 while getopts "ls:" o; do case $o in l) loop=1;; s) ss=$OPTARG;; esac; done; shift $((OPTIND-1))
 files=()
-if [ $# -eq 0 ]; then files=(studios/*/pieces/*.sh)
+if [ $# -eq 0 ]; then files=([0-9][0-9][0-9]/pieces/*.sh)
 else
   for a in "$@"; do
     if [ -f "$a" ]; then files+=("$a")
@@ -41,8 +41,8 @@ else
       while read -r t; do t=${t%%#*}; t=$(echo $t); [ -n "$t" ] && [ -f "$a/pieces/$t" ] && files+=("$a/pieces/$t"); done < "$a/TRACKLIST"
     elif [ -d "$a" ] && [ -d "$a/pieces" ]; then while read -r f; do files+=("$f"); done < <(playable_in "$a/pieces"; playable_in "$a/sketches" 2>/dev/null)
     elif [ -d "$a" ]; then while read -r f; do files+=("$f"); done < <(playable_in "$a")
-    elif [ "$a" = sketches ]; then for d in studios/*/sketches; do while read -r f; do files+=("$f"); done < <(playable_in "$d"); done
-    else for f in studios/*/pieces/$a* studios/*/sketches/$a*; do [ -f "$f" ] && files+=("$f"); done
+    elif [ "$a" = sketches ]; then for d in [0-9][0-9][0-9]/sketches; do while read -r f; do files+=("$f"); done < <(playable_in "$d"); done
+    else for f in [0-9][0-9][0-9]/pieces/$a* [0-9][0-9][0-9]/sketches/$a*; do [ -f "$f" ] && files+=("$f"); done
     fi
   done
 fi

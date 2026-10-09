@@ -1,12 +1,12 @@
 #!/bin/bash
-# Render harness (NOT part of the art). Each studios/*/pieces/*.sh holds exactly one ffmpeg
+# Render harness (NOT part of the art). Each [0-9][0-9][0-9]/pieces/*.sh holds exactly one ffmpeg
 # command ending in "$@" (output args supplied by the caller). This script runs it, then derives an mp3,
 # a spectrogram and loudness stats so a composer without ears can judge the result.
-# Output lands beside the pieces folder: studios/X/pieces/N.sh -> studios/X/out/N.*
-# usage: scripts/render.sh [-f] [paths...]   e.g. scripts/render.sh studios/300/pieces/3*.sh   (-f re-renders)
+# Output lands beside the pieces folder: X/pieces/N.sh -> X/out/N.*
+# usage: scripts/render.sh [-f] [paths...]   e.g. scripts/render.sh 300/pieces/3*.sh   (-f re-renders)
 cd "$(dirname "$0")/.."
 force=0; [ "$1" = "-f" ] && { force=1; shift; }
-pat=("${@:-studios/*/pieces/*.sh}")
+pat=("${@:-[0-9][0-9][0-9]/pieces/*.sh}")
 render_one() {
   p="$1"; force="$2"; n=$(basename "$p" .sh); od="$(dirname "$p")/../out"; mkdir -p "$od"; o="$od/$n"
   [ "$force" = 0 ] && [ -f "$o.mp3" ] && [ "$o.mp3" -nt "$p" ] && exit 0

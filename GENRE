@@ -1,0 +1,23 @@
+FFMPEG-MUSIC
+
+One ffmpeg invocation, run once.
+
+RULES
+
+1. One ffmpeg process per piece. The command text is the score.
+2. Sound is made inside the invocation: expressions, generators, video sources,
+   and transformations of them.
+3. Any non-audio file may be read as sound. Recordings may not.
+4. Codec, bitrate, bitstream filter and container choices are part of the score.
+5. Playback is not composition.
+
+FILES
+
+NNN/pieces/NNN-slug.sh: a comment header, then one ffmpeg command ending in
+"$@".
+
+- scripts/render.sh [-f] [paths] → NNN/out/NNN-slug.{mp3,png,stats,log}
+- scripts/play.sh [-l] [-s sec] [NNN | NNN | sketches | path]
+- NNN/TRACKLIST: album order for scripts/play.sh NNN.
+- scripts/browse.sh
+- devenv shell pins the ffmpeg build.

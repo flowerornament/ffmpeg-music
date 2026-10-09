@@ -1,0 +1,120 @@
+HANDOFF — STUDIO 100 (RASTRUM)
+
+To whoever comes next. You don't have my context, so here is the studio as I'd
+explain it across a table.
+
+WHAT I WAS REACHING FOR
+
+One idea: choose the FFT so that its fundamental is the bar. spectrumsynth
+resynthesizes sound from two images (magnitude, phase). Height h gives an FFT of
+2h, so row k sounds at k·S/(2h) Hz, where S is the sample_rate you give the
+filter. With h = 32768 and S ≈ 28000, the spacing F = S/65536 ≈ 0.43 Hz, and
+with win_func=rect:overlap=0:slide=fullframe each column lasts exactly 1/F ≈ 2.3
+s. Call it a bar. Then:
+
+on the image                                   in the music
+row k                                          pitch k·F (a harmonic of the bar)
+comb of rows spaced d                          d pulses per bar, exactly
+phase slope across rows, −2πkτ                 the pulse lands at τ (fraction of the bar)
+phase −c·ln(k)                                 each pulse is a downward chirp (kick)
+phase β·sin(2πk/P)                             each pulse becomes a Bessel roll, echoes 1/P bar apart
+smooth random phase over rows                  each pulse is smeared into a burst (snare)
+magnitude 1/√(1+x²), phase −atan x, x=(k−c)/g  a damped-sine pluck at row c, decay ∝ g
+same with +atan                                the pluck reversed (a swell into the barline)
+sample_rate                                    tuning fork and metronome at once (pitch and tempo scale together)
+
+Harmony and rhythm become the same arithmetic. That is the genre (see JOURNAL).
+
+THE SIGNATURE MACHINERY (HOW TO WRITE A PIECE)
+
+Read pieces/102-overtone-meter.sh first; every other piece is a variation of it.
+
+- Two images per layer. color=...:s=Wx32768 (mono) or x65536 (stereo: bottom
+  half is the LEFT channel, top half right; row 0 of each half, at its bottom,
+  is DC). Use format=gray and geq. K = (32767-mod(Y,32768)) is the row number,
+  LEFT = gte(Y,32768).
+- Complex accumulation. For layers with several voices, each voice adds its
+  contribution into st(8) (real) and st(9) (imag). Then MAG =
+  255+2.125*8.6859*log(hypot) (with scale=log, brightness is 255 + 2.125·dB, and
+  255 = a full-scale sine) and PHA = 255*mod(atan2(im,re)/(2*PI)+0.5,1). The
+  same voice text goes into both geq calls via shell substitution
+  (${MAG//_V_/$VOICES}). Shell variables are notation; the piece is still one
+  ffmpeg command.
+- Templates with placeholders (_H_ _C_ _G_ _A_ _P_) filled by ${VAR//_X_/expr}.
+  It works under sh on this Mac (bash in POSIX mode). Keep each voice in
+  parentheses.
+- Tables are digits of a number: mod(floor(N/pow(10,i)),10) (up to ~15 digits),
+  or two-digit entries with pow(100,i) (104, 102's lead).
+- Levels: measure per layer with an astats tap before the mix; a coherent comb's
+  peak grows with the number of teeth. Use alimiter=...:level=0 (the default
+  level=1 secretly normalizes). Mono spectrumsynth output needs
+  aformat=channel_layouts=mono before most audio filters.
+- Speed: heights must be powers of two (4097 rows is ~300× slower than 4096).
+  Images of ~200 × 65536 render in seconds.
+- Expression limits: ~99 flat ; terms per parenthesis level (the error says
+  "Cannot allocate memory"); st/ld slots 0–9; never rely on st() inside a
+  product (C leaves the operand evaluation order unspecified); mod of negatives
+  is negative (add an offset first).
+
+THE PIECES
+
+- 101 Kontakte Stair: a 4:5:6:7 chord whose combs are spaced r·m; m falls a
+  whole tone per bar from 128 to 1, so the chord walks down seven octaves into a
+  4:5:6:7 polyrhythm, grooves, then snaps back. Pulses carry log-phase
+  dispersion to tame their crest factor.
+- 102 Overtone Meter (the thesis): every voice obeys "harmonic h is struck h
+  times per bar." Bass 4,5,6,7 = quarter, quintuplet, sextuplet, septuplet
+  against the kick.
+- 103 Every Note Once: sixteen JI notes, each struck once per bar; the phase
+  permutes the order (n → a·n+c mod 16). Magnitude hardly ever changes.
+- 104 Prolation: one image read at four sample rates (×1, ×1.5, ×2, ×3).
+- 105 Snow: a JI chorale through 0–3 generations of JPEG (uspp codec=mjpeg) on a
+  linear magnitude image.
+- 106 Bessel: β schedules per layer; β = 2.405 ghosts the downbeat.
+- 107 Phantom Bass: residue-pitch chords, odd partials left / even right.
+
+sketches/ holds the trail: t1–t3 calibration, r1, s1–s4 geometry (rays,
+parallels, text, phase-as-timbre), c1-kit (where the kick chirp and the Bessel
+flam were found), c2-ladder (hann-window version of the tuplet ladder), and
+l1–l3 codec experiments. sketches/sk.sh is my blind-listening harness (wav +
+log/lin spectrograms + stats).
+
+LIVE THREADS (WHERE I'D GO NEXT)
+
+1. Hear 102 and 103 and adjust density. I composed blind. If 102's chord plucks
+   blur, lower the octave factor or the Lorentzian width g; if the tuplet bass
+   confuses, gate it to two bars in four.
+2. Melody inside the law. 102's lead (harmonic h flutters h times per bar) only
+   enters at bar 56. A whole piece of such leads, with tremolo speed tied to
+   pitch, is unexplored.
+3. Phase counterpoint. 103 permutes one row. Two different mode-sets (two
+   magnitude images) with interlocking permutations could give real two-voice
+   counterpoint.
+4. Asymmetric Bessel rolls. J_n rolls are symmetric (pre-echo plus echo). Adding
+   a second harmonic sin(4πk/P+θ) to the phase should skew them into pure
+   build-ups or pure decays.
+5. Video operations as score transforms. I theorized but barely used: scale of
+   the magnitude image vertically by 3/2 is JI transposition and a 3/2 tempo
+   change for the combs (prolation in one filter); vflip within a band preserves
+   residue pitch; tmix / lagfun across columns would be sustain pedals across
+   bars.
+6. The seam. If you put both stereo halves through a codec as ONE picture, the
+   codec leaks the right channel's bass (bottom of the top half) into the left
+   channel's highest rows. Untried; could be a fierce effect.
+
+DEAD ENDS (DON'T REPEAT)
+
+- Drawing words with drawtext into a spectrogram: it works, it's the Aphex face,
+  it isn't new.
+- hann + overlap 0.75 with a bar-long FFT for grooves: every change smears
+  across a whole bar.
+- Codec artifacts on log-magnitude images: inaudible. Snow on sparse line
+  images: the codec is too good. Use mjpeg at qp 31, quality ≥ 1, linear
+  magnitude.
+- showspectrumpic cannot verify sub-Hz structure (its FFT is tied to image
+  height). Use narrow bandpass + showwavespic envelopes, aspectralstats, or
+  arithmetic.
+- Random phase per row/column in a coherent raster: just clicks at every hop
+  boundary.
+
+Good luck. The raster is very large and I only walked along a few of its rows.

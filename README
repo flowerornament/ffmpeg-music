@@ -57,17 +57,8 @@ ffmpeg-music
      :::::::::::::::::····   ·····       · ·    ·           ·
      ========--------:::::::::::::-----:::::······
 
-Each piece is one ffmpeg command.
-
-100  RASTRUM       0.4296875 Hz                studios/100
-200  LECTIO        UNTRANSMITTED               studios/200
-300  PHI           What Moved                  studios/300
-400  ORGANOLOGY    --enable-hardcoded-tables   studios/400
-500  EIGENROOM     What a Room Keeps           studios/500
-600  QUARTER-TURN  clock_flip                  studios/600
-
 devenv shell
-scripts/play.sh studios/100
+scripts/play.sh 100
 scripts/browse.sh
 scripts/perform.py instruments/diatonic-live.sh
 scripts/release.py

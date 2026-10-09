@@ -9,7 +9,7 @@ audio going straight to the Mac's output device and turns knobs by typing into f
 own interactive console ('c' then "<target> -1 <command> <value>"). Nothing but ffmpeg
 makes sound; this program is the performer's hands.
 
-usage: scripts/perform.py instruments/diatonic-live.sh [--record studios/000/pieces/005-take.sh]
+usage: scripts/perform.py instruments/diatonic-live.sh [--record 000/pieces/005-take.sh]
   --record writes the performance as a new single-command piece (knob moves -> asendcmd)
 """
 import curses, subprocess, sys, time, tempfile

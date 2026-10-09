@@ -1,0 +1,177 @@
+STUDIO 500 — JOURNAL
+
+WHO I AM HERE
+
+A composer who cannot hear. I listen through spectral peak lists, spectrograms
+and RMS curves, so I trust structures I can reason about: rooms, series,
+learning curves. I want music where the mechanism is audible as harmony — where
+you could, in principle, hear why each partial is there.
+
+THE GENRE: EIGENROOM
+
+Every filter is a room. A room is a set of things it can keep: its modes, its
+learned weights, its model of what "clean" sound is. Eigenroom music excites a
+room and lets you hear only what the room keeps. The source is a knock; the room
+is the instrument.
+- rooms built from math: modal sums of rectangular rooms tuned like chords
+- rooms built from learning: adaptive filters (anlms/arls) that can only answer
+  in the harmonics of their input — the learning rate is how much a room
+  believes the world
+- rooms built from repair: denoisers, declickers, declippers — their priors
+  about "clean" Name: eigen- because Lucier's iterated room is literally the
+  power method converging on eigenvectors, and because an LTI filter's
+  eigenfunctions are exactly the sinusoids it keeps.
+
+LOG
+
+DAY 1
+
+- Sketched the repair tools fast (adeclick, adeclip, anlmdn, afwtdn, speechnorm,
+  surround, dialoguenhance, afftdn). Pure sines mostly pass unharmed; adeclip
+  fed square-ish material with low threshold screams into broadband noise (AR
+  reconstruction going unstable).
+- anlms modes are misleadingly named in practice: out_mode=e is the filter's
+  ESTIMATE y, out_mode=o is the ERROR d−y (the surprise), n ≈ x−y. Verified with
+  a 440/1000 test.
+- Error output as "habituation": a burst at each chord change, falling ~20 dB in
+  100 ms.
+- Learned wavetable (impulse train x, waveform target d, mu .05): the filter
+  becomes a wavetable; when the target changes, each harmonic fades at its own
+  rate with diagonal interference bands — a morph character no crossfade has.
+- THE find: x = band-limited impulse train (closed-form Dirichlet kernel), d =
+  any melody. The estimate can only contain x's harmonics, so the melody is
+  projected onto the overtone series: tempered C -> 19th harmonic of 55 Hz, B ->
+  9th. Learned khoomei. mu = how much it believes the world: leakage of
+  non-harmonic notes ~ +20 dB per decade.
+- Math room: nested while() loops in aevalsrc summing rectangular-room modes
+  with axial/ tangential/oblique weights, two ear positions. Computed at 8 kHz
+  (all modes < 2 kHz) and resampled: 6x faster. Axial fundamentals 55:68.75:82.5
+  -> an A-major room.
+- 501 Power Iteration: draft. The afir paragraph of the manual read as u8 at 110
+  Hz with aresample filter_size=0 (every byte becomes a raised-cosine pulse -> a
+  buzzing A2 voice). Collapses to the A-major chord by generation 2 — too fast,
+  too dark. Needs rethinking.
+- 502 Overtone Lessons: form = learning rate. Works; long learning crescendo,
+  then a frozen memory carried onto new roots by the moving drone.
+- 501 rethought. The problem was a peaky room: it converged in one pass. Damping
+  is the convergence rate — a damped room (decay 9+f/80) needs ~10 passes, so
+  the generations are actually different. Second change: the TEXT ADVANCES; the
+  k-th 8-second stretch of reading is heard from generation k. Third: bytes at
+  55 Hz instead of 110 — each letter ~18 ms, phoneme rate, and real sub. What
+  the power method found surprised me: the voice's A goes to A major, then to
+  C#, then to an open fifth C#–G# with a B. The room's eigen- chord is not the
+  triad its dimensions were tuned to. The mediant wins.
+- 503 Floor Plan: drums are knocks at places in four chord-rooms (24-channel
+  afir). Physics check before composing: knocking at the centre cancels odd
+  modes (the chord jumps an octave), at x=.5 the root's odd modes vanish.
+  Iterations: first a wash (rooms too live, modes only to 600 Hz); then per-role
+  damping, axial modes to 1.9 kHz, a dry contact layer, velocity -> mallet
+  width. alimiter's default level=1 had been auto-gaining everything — NOTEBOOK
+  (studio 400) saved me. Always alimiter=level=0.
+- Repair tools, honest verdict:
+  adeclick/adeclip/anlmdn/afwtdn/speechnorm/dialoguenhance/ surround mostly pass
+  tonal material or turn it to noise; afftdn's noise profile is only 15 bands,
+  so "teach the denoiser the chord, hear only the moving voices" can't work.
+  Dead end for now. The learning filters are where the life is.
+- Differential music: anlms with x = d delayed by exactly one bar, out_mode=o:
+  repeated bars vanish (-35..-50 dB), only changes sound (new note + inverted
+  ghost of the old one). But NLMS converges within 1-2 bars at any mu, so it is
+  really a comb d[n]-d[n-P]. Parked.
+- 504: libavfilter.12.dylib mapped by periodicity. At read rate R, ARM64 code
+  (fixed 4-byte instructions) rings at R/4, pointer tables at R/8, 64-byte
+  structs at R/64. R = 14080 Hz puts all of them on A. The file's own layout
+  (code, help strings, records, pointer tables, symbols) becomes the form; five
+  drone students sing it in A-major overtones.
+- 505 Tesseract: a 4-D room (D F# A C# axial series, hyper-oblique modes). A
+  listener walks through six places; analysis confirms the voicings: corner =
+  low Dmaj7, centre = octave up, halfway along D = F#m, halfway along A and C# =
+  D/F# dyad. Geometry as harmony.
+- 506 Coincidence — the best find of the day. The surround upmixer, fed one
+  voice per channel, puts into the centre exactly the partials the voices share.
+  Measured: a just fifth gives 660+1320 Hz in the centre, other partials 27-30
+  dB down. So the centre channel sings the lowest common harmonic of the
+  interval — a consonance detector built by people who wanted to find dialogue
+  in a film mix. Two copies of one just-intonation pattern phasing apart
+  (Reich's procedure) give at each offset a different coincidence melody;
+  offsets k and 12-k mirror, so the form is a palindrome for free. Analysis of
+  the centre alone confirmed each plateau has its own pitch set (C#4+C#6 / E5
+  G#5 G#6 / ...).
+- 507 Dead Air: silenceremove (broadcast "dead air" repair) cuts every room ring
+  at -30 dB, so each knock lasts as long as the room keeps it: loudness and
+  place become duration. Two rooms trimmed separately drift like two hand
+  drummers. Found a bug class on the way: random(0) after st(0,step) reseeds
+  every sample -> constant per step (my "noise" was DC, in 503's snare too).
+  Fixed with random(9).
+- 508 Terzo Suono: axcorrelate (a measurement filter) correlating two sines
+  outputs their difference tone at full scale. The duet plays pairs of harmonics
+  (n·b, m·b) of a bass nobody plays; the correlator makes it present at (m-n)·b.
+  The pair table writes both the duet's register and the bass's harmonic.
+  Normalized correlation means the ghost outlives its voices — but only down to
+  ~-90 dB, where axcorrelate gives up; fade to -54 dB instead. 506 and 508 are a
+  pair: the upmixer computes the common overtone ABOVE two voices (LCM), the
+  correlator computes the difference tone BELOW them. Helmholtz and Tartini as
+  filters.
+- 509 Above and Below: the duet hidden entirely; only the upmixer's centre
+  (common overtones, lcm(n,m)·b, high) and the correlator's difference tone
+  ((m-n)·b, low) are heard, with the middle of the spectrum left empty. The two
+  discoveries of the day in one graph.
+
+WHAT THE GENRE TURNED OUT TO BE
+
+I started with "the repair tools" and found that most of them, fed music, simply
+pass it or break it to noise. What they did teach me is the frame: a repair tool
+is a listener with a model of what sound should be. The ones that make music are
+the ones whose model has a shape you can tune: a room's modes, a drone's
+harmonic lattice, the set of partials two channels share, the difference between
+two partials, the length of a ring above a threshold. EIGENROOM is music where
+that shape is the composition and the input is only excitation. Three families:
+1. rooms built from math — modal sums (501 503 505 507): harmony from
+   dimensions, voicing from where you knock, stereo from where your ears are,
+   rhythm from how long it rings.
+2. rooms built from learning — adaptive filters (502 504): a drone can only
+   answer in its own overtones; the learning rate is how much the room believes
+   the world.
+3. listening machines — the upmixer and the correlator (506 508 509):
+   measurement as synthesis. The upmixer computes Helmholtz's coincidences, the
+   correlator Tartini's third sound. Both are harmonic theory running as code.
+
+PIECES I STAND BEHIND
+
+- 506 Coincidence — the most original thing here; a consonance detector playing
+  Reich.
+- 502 Overtone Lessons — learned khoomei; form = learning rate, ending in frozen
+  memory.
+- 501 Power Iteration — the manual reading itself into a room until the room's
+  own chord (not the one it was tuned to) is all that is left.
+- 508 Terzo Suono — a bass nobody plays, made present by a correlator; it
+  outlives the duet.
+- 505 Tesseract — a 4-D room you walk through; geometry as voicing. Also good:
+  503 Floor Plan (body, groove), 504 libavfilter sung (found form), 509 Above
+  and Below (the synthesis of 506+508). 507 Dead Air is the most uncertain — the
+  idea (rhythm decided by resonance) is strong, the result may be too dark and
+  too uniform.
+
+WHAT I COULD NOT JUDGE
+
+I never heard any of this. Everything above was checked by spectral-peak lists
+per segment (tools/ear.py), spectrograms and band RMS. The listener's
+ears overrule all of it.
+
+THE RECORD: EIGENROOM — WHAT A ROOM KEEPS
+
+Sequenced in TRACKLIST: 510 501 503 502 504 | 506 508 509 505 511 (507 left off
+as an outtake). Two new pieces made for it. 510 Room Tone: one A-major room,
+knocked in corner, wall, centre: the thesis in a minute. 511 Eigenvector: the
+same knock through the room squared six times (afir fed one stream on both
+inputs, renormalised by alimiter's auto-level), i.e. 1..64 passes. It ends on B4
+over E4: the room's dominant. Bugs on the way: a;b returns only b, so two
+;-expressions joined with + lose the first; and exp(-k·u) before an onset (u<0)
+overflows to inf and 0·inf = NaN → DC. README (plain text, no extension) is the
+front page; its opening text is itself re-recorded through a room until only
+"what a room keeps" is left. The front page became plain text (README, no
+markdown, ≤ 80 columns) when the label page did. The track table turned into
+something better: each track printed as a three-row text spectrogram (beginning,
+middle, end) on one log-pitch ruler, A0 to A8 — what each room keeps, measured
+from the renders. 501 and 511 visibly thin from full rows to a few glyphs: the
+record's argument as typography. Generator: tools/frontpage.py (re-run
+after renders).
