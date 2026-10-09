@@ -9,32 +9,32 @@
 #   do mi sol do ti la sol  fa la sol mi re   do mi sol la sol fa mi re do
 # and the two empty lines are rests. So the page you read before pressing play is a
 # hymn tune, and its ragged right edge is the melody upside down.
-# First time: the tune alone (27.00 s). Second time with a fifth and an octave below
+# First time: the tune alone (28.50 s). Second time with a fifth and an octave below
 # - the same held lines read at 64 and 48 kHz. Parallel organum works here, where it
 # failed in 205, because here pitch is length, not history.
 # The README is found from this file's own path: ${0%/pieces/*}/README.
 ffmpeg -hide_banner -y \
  -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,0,end,60,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,60,end,108,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,108,end,148,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,148,end,178,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,178,end,210,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,210,end,246,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,246,end,286,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,287,end,332,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,332,end,368,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,368,end,408,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,408,end,456,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,456,end,510,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,511,end,571,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,571,end,619,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,619,end,659,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,659,end,695,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,695,end,735,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,735,end,780,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,780,end,828,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,828,end,882,,:${0%/pieces/*}/README" \
- -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,882,end,942,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,61,end,109,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,109,end,149,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,149,end,179,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,179,end,211,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,211,end,247,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,247,end,287,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,288,end,333,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,333,end,369,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,369,end,409,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,409,end,457,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,457,end,511,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,512,end,572,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,572,end,620,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,620,end,660,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,661,end,697,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,697,end,737,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,737,end,782,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,782,end,830,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,830,end,884,,:${0%/pieces/*}/README" \
+ -stream_loop 3 -f dfpwm -sample_rate 96000 -i "subfile,,start,884,end,944,,:${0%/pieces/*}/README" \
  -filter_complex "
  [0]atrim=start_sample=1440:end_sample=1920,asetpts=N/SR/TB,aloop=loop=-1:size=480,atrim=end_sample=960000,aformat=channel_layouts=mono,asplit=4[h0m1][h0m2][h0f2][h0o2];
  [h0m1]aresample=48000,atrim=end=1.5,afade=t=in:d=0.03,afade=t=out:st=1.44:d=0.06,volume=1.0,aformat=sample_fmts=fltp:channel_layouts=mono[s0m1];
@@ -141,19 +141,27 @@ ffmpeg -hide_banner -y \
  [h20m2]aresample=48000,atrim=end=4.5,afade=t=in:d=0.03,afade=t=out:st=4.44:d=0.06,volume=1.0,aformat=sample_fmts=fltp:channel_layouts=mono[s20m2];
  [h20f2]asetrate=64000,aresample=48000,atrim=end=4.5,afade=t=in:d=0.03,afade=t=out:st=4.44:d=0.06,volume=0.7,aformat=sample_fmts=fltp:channel_layouts=mono[s20f2];
  [h20o2]asetrate=48000,aresample=48000,atrim=end=4.5,afade=t=in:d=0.03,afade=t=out:st=4.44:d=0.06,volume=0.8,aformat=sample_fmts=fltp:channel_layouts=mono[s20o2];
- anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm17];
- anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm113];
- [s0m1][s1m1][s2m1][s3m1][s4m1][s5m1][s6m1][rm17][s7m1][s8m1][s9m1][s10m1][s11m1][rm113][s12m1][s13m1][s14m1][s15m1][s16m1][s17m1][s18m1][s19m1][s20m1]concat=n=23:v=0:a=1[m1];
- anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm27];
- anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm213];
- [s0m2][s1m2][s2m2][s3m2][s4m2][s5m2][s6m2][rm27][s7m2][s8m2][s9m2][s10m2][s11m2][rm213][s12m2][s13m2][s14m2][s15m2][s16m2][s17m2][s18m2][s19m2][s20m2]concat=n=23:v=0:a=1[m2];
- anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rf27];
- anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rf213];
- [s0f2][s1f2][s2f2][s3f2][s4f2][s5f2][s6f2][rf27][s7f2][s8f2][s9f2][s10f2][s11f2][rf213][s12f2][s13f2][s14f2][s15f2][s16f2][s17f2][s18f2][s19f2][s20f2]concat=n=23:v=0:a=1[f2];
- anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[ro27];
- anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[ro213];
- [s0o2][s1o2][s2o2][s3o2][s4o2][s5o2][s6o2][ro27][s7o2][s8o2][s9o2][s10o2][s11o2][ro213][s12o2][s13o2][s14o2][s15o2][s16o2][s17o2][s18o2][s19o2][s20o2]concat=n=23:v=0:a=1[o2];
- anullsrc=r=48000:cl=mono:d=27.0,aformat=sample_fmts=fltp:channel_layouts=mono,asplit=2[z1][z2];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm11];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm18];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm114];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm118];
+ [s0m1][rm11][s1m1][s2m1][s3m1][s4m1][s5m1][s6m1][rm18][s7m1][s8m1][s9m1][s10m1][s11m1][rm114][s12m1][s13m1][s14m1][rm118][s15m1][s16m1][s17m1][s18m1][s19m1][s20m1]concat=n=25:v=0:a=1[m1];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm21];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm28];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm214];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rm218];
+ [s0m2][rm21][s1m2][s2m2][s3m2][s4m2][s5m2][s6m2][rm28][s7m2][s8m2][s9m2][s10m2][s11m2][rm214][s12m2][s13m2][s14m2][rm218][s15m2][s16m2][s17m2][s18m2][s19m2][s20m2]concat=n=25:v=0:a=1[m2];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rf21];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rf28];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rf214];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[rf218];
+ [s0f2][rf21][s1f2][s2f2][s3f2][s4f2][s5f2][s6f2][rf28][s7f2][s8f2][s9f2][s10f2][s11f2][rf214][s12f2][s13f2][s14f2][rf218][s15f2][s16f2][s17f2][s18f2][s19f2][s20f2]concat=n=25:v=0:a=1[f2];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[ro21];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[ro28];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[ro214];
+ anullsrc=r=48000:cl=mono:d=0.75,aformat=sample_fmts=fltp:channel_layouts=mono[ro218];
+ [s0o2][ro21][s1o2][s2o2][s3o2][s4o2][s5o2][s6o2][ro28][s7o2][s8o2][s9o2][s10o2][s11o2][ro214][s12o2][s13o2][s14o2][ro218][s15o2][s16o2][s17o2][s18o2][s19o2][s20o2]concat=n=25:v=0:a=1[o2];
+ anullsrc=r=48000:cl=mono:d=28.5,aformat=sample_fmts=fltp:channel_layouts=mono,asplit=2[z1][z2];
  [m1][m2]concat=n=2:v=0:a=1,pan=stereo|c0=0.8*c0|c1=0.8*c0[M];
  [z1][f2]concat=n=2:v=0:a=1,pan=stereo|c0=0.75*c0|c1=0.35*c0[F];
  [z2][o2]concat=n=2:v=0:a=1,pan=stereo|c0=0.35*c0|c1=0.75*c0[O];

@@ -5,7 +5,7 @@ offs=[]; o=0
 for l in lines:
     offs.append((o,len(l)+1)); o+=len(l)+1
 body=list(zip(lines,offs))                # every line of the page
-dur=[1.5,.75,.75,1.5,.75,.75,1.5,.75,1.5,.75,.75,.75,2.25,.75,1.5,.75,.75,1.5,.75,.75,.75,.75,4.5]
+dur=[1.5,.75,.75,.75,1.5,.75,.75,1.5,.75,1.5,.75,.75,.75,2.25,.75,1.5,.75,.75,.75,1.5,.75,.75,.75,.75,4.5]   # rests after the title and before the liner notes
 assert len(dur)==len(body)
 P1=sum(dur)
 hdr=f'''#!/bin/sh
