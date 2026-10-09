@@ -1,0 +1,1 @@
+afir-manual-page.md: bytes 89981–96700 of ffmpeg-filters (FFmpeg documentation, LGPL-2.1-or-later), read as sound by 501.

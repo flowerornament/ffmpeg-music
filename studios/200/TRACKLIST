@@ -1,0 +1,14 @@
+# UNTRANSMITTED — LECTIO (studio 200)
+# the readers are named after each track; the reading speed is the key.
+#
+# side one: the page, the poem, the chorale, the lane
+207-front-page.sh              # DFPWM reads the README at 96 kHz
+201-prolation.sh               # GSM reads a stanza at 880..7040 Hz
+204-measures.sh                # DFPWM reads a poem at 48 and 64 kHz
+203-whisper-down-the-lane.sh   # GSM, then seven telephones in a row
+#
+# side two: the silence, the crowd, the chant, the line still open
+202-comfort.sh                 # G.723.1 comfort noise, slowed 15-30x
+206-come-out.sh                # GSM at 6000..6021 Hz
+205-organum.sh                 # G.723.1, a sentence it chose
+208-untransmitted.sh           # o o o o o o o o

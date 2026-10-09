@@ -1,0 +1,24 @@
+# ORGANOLOGY — --enable-hardcoded-tables
+# registration card. one stop per line, pulled in this order. total 35:05.
+#
+#  manual        piece                              organ played                          time
+#  ------        -----                              ------------                          ----
+# I  Pedal
+410-stop-list.sh          # every stop, sounded once on the harmonic series of A      1:10
+# II Great
+401-codebook-canon.sh     # AAC Huffman code lengths: surprisal as pitch, in canon    3:27
+403-progressive.sh        # HEVC scan order + JPEG quantizer: decode, then compress   4:48
+# III Vox Humana
+405-vox-humana.sh         # GSM decoder sings the first paragraph of its manual       2:00
+# IV Swell
+402-beat-rhythmicon.sh    # two organs a fraction of a hertz apart: tuning as rhythm   5:20
+406-threshold.sh          # hearing-threshold curve + Bayer dither matrix              5:28
+# V Echo
+408-sygyt.sh              # GSM overtone singing, whistling the AAC codebooks          2:58
+409-sygyt-at-120.sh       # the same throat, inside the dither machine                 3:20
+# VI Coupler
+404-powers-of-two.sh      # one table, sixteen speeds: melody -> metre -> pitch        3:50
+# Tremulant (coda)
+407-colophon.sh           # the score reads itself aloud                               2:44
+#
+# outtakes: none withheld; the sketches in ../sketches are workbench, not record.

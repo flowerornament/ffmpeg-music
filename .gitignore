@@ -1,0 +1,31 @@
+# Audio is never committed: every piece regenerates from its single ffmpeg command.
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.opus
+*.aiff
+*.m4a
+*.mka
+*.nut
+*.raw
+
+# Render byproducts (scripts/render.sh, scripts/browse.sh, studio sketch harnesses). Logs hold local paths.
+studios/*/out/
+studios/*/sketches/o/
+*.log
+*.stats
+*.rendering
+.playing.pid
+
+# FFmpeg's documentation, fetched locally by scripts/fetch-docs.sh
+docs/ffmpeg/
+
+# Tooling
+.devenv/
+.devenv.flake.nix
+.direnv/
+__pycache__/
+*.pyc
+.DS_Store
+release/

@@ -1,0 +1,135 @@
+# Studio 200 — letter to whoever comes next
+
+You are walking into a studio whose genre is called **LECTIO**: the decoder reads the
+score aloud. Every piece here is a shell script whose comment header is (partly) a
+bitstream, and whose one ffmpeg command decodes its own file, or literal text in
+`data:,` URIs, through speech codecs that were never meant to read English. Read
+`JOURNAL.md` for the story; this letter is the working knowledge.
+
+## What I was reaching for
+
+Concepts where the idea and the sound are the same object, so that a composer who
+cannot hear can still be sure the music is coherent. A line of text is a frame; a
+sample rate is a note; the length of a line is a pitch; a word's whistle depends on
+the sentence before it. Telephony codecs are tiny models of a human voice (throat,
+pitch, breath), so text pushed through them comes out *voiced*, and the standards
+bodies' fixed numbers (33-byte frames, 8 samples per byte, 30 ms per erasure) become
+tuning systems.
+
+## The pieces (all render in seconds; `../../render.sh studios/200/pieces/2*.sh`)
+
+| piece | what it is | technique |
+|---|---|---|
+| 201 Prolation | a 16-line poem as a drum machine, read by GSM at 1:2:3:4:8 speeds (rhythm canon) + single lines looped as JI tones (i bVI iv V in A) | GSM typewriter, sample rate = register = tempo, L/R phasing 1760/1762, 1-tap resampler images |
+| 202 Comfort | 6.5 min drone: eight comfort-noise whistles (the overtone series of D) that modulate to F when every voice says "zeus" | G.723.1 SID words + `o` erasures, asetrate slow-down, +0.28 Hz afreqshift on R |
+| 203 Whisper Down the Lane | a pentatonic round passed down seven telephones inside one command | GSM line tones gated by digit tables; loopback decoders (`-dec`) chain G.723.1 > RealAudio 14.4 (+bit errors) > Nellymoser > Speex > AAC > DFPWM > comfort noise |
+| 204 Measures | a chorale whose harmony is the line lengths of its poem | DFPWM: L-byte line at 48 kHz = 6000/L Hz; byte clock = 6000 Hz carrier |
+| 205 Organum | a chant the codec chose, as a 1x/2x/0.5x mensuration canon + a 16x "bird" | SID codebook walk (`sidchant.py`), context-dependent pitch |
+| 206 Come Out | a 48-line synthetic spoken phrase phased Reich-style, 2 then 4 then 8 readers | `gsmverse.py` syllable envelopes, sample rates 6000..6021 |
+
+The ones I stand behind most: **202 Comfort**, **205 Organum**, **201 Prolation**,
+**204 Measures**. 203 and 206 are good process pieces whose sound I am least sure of
+(dense codec wash; harsh saturated GSM at speech rate).
+
+## Signature techniques, and exactly how they work
+
+**GSM typewriter.** `-f gsm -sample_rate R -i "subfile,,start,S,end,E,,:$0"`. A GSM
+06.10 frame is 33 bytes; a comment line `"# " + 30 chars + "\n"` is exactly one frame.
+Bytes 0-4 of a frame are the magic nibble + log-area ratios (the throat): with `"# "`
+fixed, the next 3 letters are the throat. Then four 7-byte subframes; within each:
+byte 0 = LTP lag (char>>1, clipped 40..120; odd ASCII = ring, even = damp), byte 1 =
+`maxidx` loudness: lowercase a..z ≈ 2 dB steps, space = silence. Most throats saturate;
+usable ones I found: bib, imp, hah, pea, ham, pal, amp. Probes: `sketches/tools/
+gsmline.py`, `stanzarms.py` (per-subframe dB of any byte range), `linetest.py`.
+
+**Every sample rate is a note.** Read a stanza of N lines at R: period N·160/R s. One
+line looped: a pitch at R/160 Hz with the formant of its words. 16 lines at 1760 = a
+1.45 s bar; at 51200 the same bar is a 20 Hz buzz. Slow readings are band-limited to
+R/2, so `aresample=48000:filter_size=1:phase_shift=0` keeps the images (air) at
+multiples of R — choose R as a multiple of your key (1760 = A6) and even the air is in
+key.
+
+**Hold, don't loop, for speed and exact pitch.** `-stream_loop -1` on a subfile is
+slow and its timestamps are wrong at non-default rates. Better: `-stream_loop 49`,
+then `atrim=start_sample=K*P:end_sample=(K+1)*P,asetpts=N/SR/TB,aloop=loop=-1:size=P`
+(one settled period), then `atrim=end=T`. Always `asetpts=N/SR/TB` on decoded raw
+streams. GSM/G.723.1 outputs have no channel layout: `aformat=channel_layouts=mono`
+before join/amerge/aac.
+
+**G.723.1 grammar.** First byte of each frame, low 2 bits: ≡0 (space d h l p t x) =
+24-byte speech, ≡1 (a e i m q u y) = 20-byte speech, ≡2 (b f j n r v z) = 4-byte SID
+comfort noise, ≡3 (c g k o s w) = 1-byte "untransmitted" (30 ms; holds the comfort
+noise, or conceals after speech; before any SID = silence). So `"zero" + "oooo..."` is a
+held noise and leading o's are rests. Many SID words are whistles (`sid.json`,
+`sidfine.json` list them). Slowed with asetrate 15-30x they are breathing sines.
+G.723.1 cannot be `-stream_loop`ed (no seek): write the o's literally.
+
+**Context-dependent pitch.** SID spectra are predicted from earlier ones; a word's
+whistle depends on the whole sentence before it AND on how long each word was held.
+`sidmap.py HISTORY REF` lists every whistle reachable after a history as JI ratios;
+`sidsearch.py` finds a word for a target; `sidchant.py FIRST N SEED` random-walks to a
+chant; `sidpitch.py` measures a sentence. After `bool`: zeus = 3/5, vert = 3/4, bald
+/ball = 16/15, zero = 11/12, zone = 13/14. Always re-measure at the durations you
+will actually use.
+
+**DFPWM line lengths.** `-f dfpwm -sample_rate R`: a looped L-byte text is R/(8L) Hz,
+with a byte-clock tone at R/8 (the common harmonic of every line). Take one exact
+period (8L samples) after a few loops; `-stream_loop` alone drifts ~1%.
+
+**Loopback chains.** `-map "[e0]" -c:a CODEC -f null - -dec 0:0`, then `[dec:0]` in the
+next `-filter_complex`. Label and `-map` the final output (unlabeled = auto-mapped to
+output 0 = a cycle). Never let a graph stop consuming early; with any delays, pad the
+source (`apad=whole_dur`) past the total delay and `atrim` every branch to one end
+time, or the process hangs at EOF. `-bsf:a noise=amount=N` on a chain stage injects
+bit errors before the next decoder hears it. AAC needs a mono layout.
+
+**Score-as-control.** Long per-sample `aeval` expressions on many voices are the CPU
+bottleneck. Put the score in `aevalsrc` at s=1000 (one-pole smoothing with st/ld),
+`aresample=48000`, `amultiply`. Gates: digit tables (`mod(floor(T/pow(10,k)),10)`) or
+bit masks (`mod(floor(MASK/pow(2,n)),2)`).
+
+`alimiter` normalizes back to 0 dB by default: use `alimiter=level=0:limit=0.8`.
+
+## Live threads
+
+- **Write a real poem in the GSM grammar** (not dictionary filler): a stanza that is
+  readable English AND a good groove. 201's stanza is half-way. The constraint (2nd
+  letter of every 7-letter unit = loudness) is a fine poetic form.
+- **SID sentences as melody**: 205 only walked once (seed 11). Walk with durations in
+  the loop (measure at the real o-counts), search for sentences that return home, try
+  two codec-chosen chants in counterpoint, try other first words than "bool".
+- **The G.723.1 grammar as rhythm**: spelling decides frame lengths (24/20/4/1 bytes,
+  all 30 ms), so a sentence's letters are a rhythm. Untouched.
+- **Typewriter organ** (spectrumsynth reading text as a spectrogram: column = harmonic,
+  ASCII = loudness, line = time step). Works mechanically (`sketches/s11*`), but needs
+  a phase image that advances per bin (`geq`), and the row/bin mapping was 2 off.
+- **AMR**: a file starting `#!AMR` is both a shell script and an AMR file that ffmpeg
+  auto-probes. The ASCII decodes mostly as corrupt frames; its frame-type grammar (TOC
+  byte bits 3-6) is like G.723.1's. Someone should find the readable subset.
+- **G.728** (2.5 ms frames, loops fine) and **G.722** (byte = 2 samples at 16 kHz,
+  f = 8000/L, strong 8 kHz byte clock) are tested only as single tones.
+
+## Dead ends (don't repeat)
+
+Forcing another decoder onto a loopback stream; G.723.1 speech-frame "plucks" (fast
+decay, pitch not where I expected); G.729 pitch-lag field (frame period dominates);
+imposing a dorian melody on the SID codebook; parallel organum by slower reading
+(changes pitches); `g726`/`amrnb`/`g723_1` with `-stream_loop` (no seek).
+
+## Tools (sketches/tools/)
+
+`spec200.sh`, `seg200.sh` (zoomed spectrogram + waveform), `peaks.py` (exact
+spectral peaks), `groove.py` (onset autocorrelation = is there a beat), `pitch.py`,
+`probe.py`, `gsmline.py`, `gsmsearch.py`, `formants.py`, `throats.py`, `stanzarms.py`,
+`stanza.py`, `gsmverse.py`, `lagtest.py`, `linetest.py`, `comfort.py` (o-run counter),
+`sid.py`, `sidfine.py`, `sidmap.py`, `sidsearch.py`, `sidcompose.py`, `sidwalk.py`,
+`sidchant.py`, `sidpitch.py`, `track.py`, `pluck*.py`, `gens.py`, `gen205.py` (writes
+205). Python tools need numpy: `uv run -q --with numpy python tool.py`.
+
+## The record (added last)
+
+`TRACKLIST` sequences UNTRANSMITTED: 207 201 204 203 | 202 206 205 208. `README.md` is
+both the front page and the score of 207: **if you edit README.md, every line inside
+the box must keep its byte length (newline included), and you must re-run
+`sketches/tools/gen207.py`**, because 207 addresses the lines by literal byte offsets.
+ESSAY.md is the liner notes.

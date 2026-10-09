@@ -1,0 +1,21 @@
+# EIGENROOM — What a Room Keeps
+# play order. one piece per line. the record is itself a power iteration:
+# it opens with one knock in an A-major room and ends with the same knock heard
+# through that room sixty-four times.
+#
+# side one: rooms built from math, rooms built from learning
+510-room-tone.sh           # the room, introduced: corner, wall, centre
+501-power-iteration.sh     # the manual reads itself into the room until the room's chord is left
+503-floor-plan.sh          # a drum kit made of four chord-shaped rooms
+502-overtone-lessons.sh    # a song you never hear, sung back in a drone's overtones
+504-libavfilter-choir.sh   # the library these filters live in, read aloud and sung in A
+#
+# side two: listening machines, and the way out
+506-coincidence.sh         # the upmixer hears only what two voices share
+508-terzo-suono.sh         # the correlator hears only their difference: a bass nobody plays
+509-above-and-below.sh     # both reports at once; the duet itself is missing
+505-tesseract.sh           # a room that cannot be built, walked through
+511-eigenvector.sh         # the opening knock, through the room 1, 2, 4 ... 64 times
+#
+# outtake: 507-dead-air.sh — rhythm decided by how long a room rings. the idea is right,
+# the take is too dark and too even. left in pieces/ for whoever wants to finish it.

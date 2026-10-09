@@ -1,0 +1,21 @@
+# QUARTER-TURN — clock_flip
+# one picture of the time-frequency plane, read along both axes
+#
+# 0°    the flag itself: a chord, then the same picture flipped
+607-clock-flip.sh
+# 0→90° the manifesto: the riser is the turn
+601-quarter-turn.sh
+# 90°   a sentence in braille is the drum machine
+604-pinpoint.sh
+# 90°   conway's life through a xenakis sieve
+603-sieve-of-life.sh
+# 180°  interlude: the chorale, backwards, in negative harmony
+608-half-turn.sh
+# 90°+  shear and squeeze: swing, lasers, tape stop, half-time
+606-symplectic.sh
+# 360°  one full revolution
+602-revolution.sh
+# ±θ    a canon at three speeds; it ends by turning into its own clock
+605-prolation.sh
+#
+# outtakes (playable, not on the record): sketches/s01–s17

@@ -1,0 +1,34 @@
+# studio 300 sketches
+
+Scratch experiments, kept because they taught something. These are multi-command helpers
+and probes, not pieces (pieces are one ffmpeg command each, in ../pieces).
+
+- `phi-me-modes.sh out "minterpolate opts" [period] [dur]` — a four-chord JI loop rendered through
+  one motion-estimation configuration. The png compares A esa/bidir, B default bilat,
+  C aobmc+umh+vsbmc, D bilat/tss/mb8. Each estimator is a different "ensemble".
+- `phi-lagfun-wake.sh` — lagfun AFTER peak-picking leaves every bin a glide crosses ringing:
+  a harp glissando up the overtone frets. At decay .975 it washes into clusters, and the peak
+  is +8 dB, so lower the gain.
+- `x264-eye-chord-strum.sh out "x264 opts"` — chords held as video and sent through libx264 via a
+  loopback decoder (`-dec 0:0`). At crf 51 new chords arrive band by band (16-bin macroblock
+  rows) over about 1 s, a strum decided by rate control. At 4 kbit/s with a huge GOP the
+  codec never affords the second chord.
+- `x264-sample-hold.sh` — a gliding harmonic series through starved x264 with forced keyframes.
+  The codec follows smooth vertical motion too well (motion compensation is its job), and only
+  upper harmonics break into steps. Untried: a crippled motion search (me=dia, tiny merange).
+- `peaks.py file [t] [n]` — FFT peak list with note names (pure Python, no numpy here).
+- `spec.sh in.wav out.png stopHz start dur` — zoomed spectrogram. It zooms by resampling to
+  2*stop, because showspectrumpic's own `stop` smears everything into stripes.
+- `lag.py` — cross-correlation lag between the two channels (used to align codec residues).
+- `pedal.sh out qp "keyframe expr" dur` — the 305 discovery: one-note-per-sixteenth arpeggio through x264
+  (left) and mjpeg (right). At qp 51 the x264 ear holds notes until the next keyframe (see
+  x264-pedal-qp51-left.png): the GOP as damper pedal.
+- `xgain.sh` — exposure: image gain before x264, divided out after decode. The codec reveals harmony as the
+  image brightens. With held chords this was too static to carry a piece.
+- `harp2.sh` — the first lagfun pluck test (strike one frame, let the afterimage ring).
+- `persp.sh` — `perspective` tilt of a harmonic chord (perspective-tilt.png): partials curve toward a
+  horizon and back.
+- `env.py file Hz start dur` — Goertzel envelope (dB per 20 ms) at one frequency. This found the
+  crest-factor bug that hid 303's plucks.
+- 303-left-cuts-right-glides.png — the scene-change detector cutting on the left while the right ear glides.
+- `rehearsal-trace.sh` — prints the chord roots 306's learner chooses (wandering -> cadences).

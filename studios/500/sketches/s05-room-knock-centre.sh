@@ -1,0 +1,3 @@
+#!/bin/sh
+# modal room physics check: knock at the centre of an A-major room (55:68.75:82.5). Every odd mode cancels, the chord lifts an octave. Change SX SY SZ (0.5 0.5 0.5) to 0 0 0 (corner: full chord), 0.5 0 0 (root thins: C#/E). Basis of 503/505/507.
+ffmpeg -hide_banner -filter_complex "aevalsrc=s=8000:d=2:exprs='st(4,0);st(0,0);while(lt(ld(0),9),st(1,0);while(lt(ld(1),7),st(2,0);while(lt(ld(2),6),st(3,sqrt(pow(ld(0)*55,2)+pow(ld(1)*68.75,2)+pow(ld(2)*82.5,2)));st(4,ld(4)+pow(0.4,gt(ld(0),0)+gt(ld(1),0)+gt(ld(2),0))*cos(PI*ld(0)*0.5)*cos(PI*ld(1)*0.5)*cos(PI*ld(2)*0.5)*cos(PI*ld(0)*0.1)*cos(PI*ld(1)*0.13)*cos(PI*ld(2)*0.07)*exp(-t*(2+ld(3)/200))*sin(2*PI*ld(3)*t));st(2,ld(2)+1));st(1,ld(1)+1));st(0,ld(0)+1));0.05*ld(4)',aresample=48000" "$@"

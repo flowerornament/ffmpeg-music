@@ -1,0 +1,8 @@
+# Pinned to the nixpkgs revision that built the ffmpeg these pieces were composed on.
+# Studio 400 (and piece 504) read tables at byte offsets inside that exact libavcodec build:
+#   /nix/store/w7r73zzbx5r5igv9vafakpsvi6qhi0ck-ffmpeg-9.0.1-lib
+# Changing this revision changes the instrument. Do it deliberately, then re-find the tables
+# (studios/400/HANDOFF.md explains how).
+inputs:
+  nixpkgs:
+    url: github:nixos/nixpkgs/e7439b6b14ad3cc35d05608ebca9bce01a25f5f8

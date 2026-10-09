@@ -1,0 +1,226 @@
+# Studio notebook
+
+Things the people working in this studio have found out about FFmpeg as an instrument.
+Nothing here is a rule except GENRE.md's one: a piece is one ffmpeg command. Add what you
+discover (a dated line with your name is nice), correct what turns out wrong.
+
+The listener's ears so far: the scratch sketches that landed were a rule-30 cellular automaton
+played through `spectrumsynth`, and the ffmpeg binary read as 8-bit audio. What the listener is
+hoping for overall: music that is wildly original *and* musically coherent — harmonic
+structure, time, form — and physically full (sub, mids, air, a stereo field), the way a
+working experimental musician brings theory, the body, mixing craft and a concept together.
+
+Practicalities: each composer has a studio folder (see `studios/README.md`); `studios/NNN/pieces/NNN-slug.sh` ends its single command with `"$@"`; shell variables
+are fine as notation (see `studios/000/pieces/002-diatonic-machine.sh`). `scripts/render.sh studios/NNN/pieces/NNN*.sh`
+gives `studios/NNN/out/NNN*.{mp3,png,stats,log}` — the png is a log-frequency spectrogram, the stats
+include loudness and band/stereo balance, which is about as close to ears as we get.
+`scripts/play.sh NNN` plays a piece live. Docs: `docs/ffmpeg/*.md` (`scripts/fetch-docs.sh` downloads them). Artists' techniques from
+interviews: `research/techniques.md`. A brainstorm of abuses: `IDEAS.md`.
+
+## Harmony in closed form (verified)
+- scale degree d (integer, any size) -> semitones, mode m (0 ionian,1 dorian,2 phrygian,
+  3 lydian,4 mixolydian,5 aeolian,6 locrian):  floor((12*(d+m)+5)/7) - floor((12*m+5)/7)
+- chord on root degree r: degrees r, r+2, r+4 (+r+6 seventh, +r+8 ninth)
+- progression table: digits of an integer, e.g. step k of 44152630 is
+  mod(floor(44152630/pow(10,k)),10) -> i iv VII III VI ii° v v. Up to ~15 digits per table.
+  Base-2 masks for rhythms: gate = mod(floor(MASK/pow(2,step)),2).
+- voice leading: fold each voice's pitch class into a fixed one-octave window
+  (mod(semi - L + 120, 12) + L) -> smooth, close voice leading for free.
+- just intonation alternative: harmonics of a fundamental, f = F*(k) or ratios p/q.
+- freq from semitone x relative to A3: 220*pow(2,x/12).
+- Euclidean gate E(k,n) on step s: lt(mod(s*k,n),k).
+
+## Expression engine facts (verified)
+- aevalsrc/aeval variables st(i,..)/ld(i) PERSIST across samples -> recursive DSP:
+  phase accumulator  st(0,mod(ld(0)+f/48000,1)); sin(2*PI*ld(0))   (click-free glides)
+  one-pole lowpass   st(1,ld(1)+c*(x-ld(1)))
+  random walk / GENDYN, logistic map, Lorenz, feedback FM, sample&hold all possible.
+- ';' sequences expressions inside quotes. Quote exprs with '...' inside the -filter_complex "...".
+- Per-channel expressions separated by '|' have separate variable state.
+- Hash noise: mod(sin(k*12.9898)*43758.5453,1). random(i) also exists. Variable `n` = sample index.
+- Note-local time: st(5,floor(t*R)); st(6,t-ld(5)/R)  -> step index and time since onset.
+  Start oscillators at onset phase 0 (use local time) to avoid clicks; window ends with (1-tau*R).
+- aphaser speed >= 0.1. Check parameter ranges in docs before using extreme values;
+  extreme-but-legal is the point.
+
+## Cross-modal / abuse toolbox (verified)
+- spectrumsynth: two video streams (magnitude, phase; gray) -> audio via inverse FFT.
+  height h -> FFT of 2*(h-1). slide=scroll consumes 1 column/frame: set video rate = sr/hop
+  (hop = 2*(h-1)*(1-overlap)), e.g. h=513, overlap=0.75 -> hop 256 -> r=187.5 at 48 kHz.
+  slide=fullframe consumes whole frames. Any video source/filter (cellauto, life, mandelbrot,
+  zoneplate, perlin, gradients, geq, drawtext, testsrc) becomes a spectrum.
+  Draw harmony INTO the image (geq brightness at rows = chord partials) for tonal results.
+- Found bytes: `-f u8|s16le|mulaw|alaw|f32be -ar N -ac C -i /path/to/any/file`
+  (system binaries, /System/Library/Fonts/*, the docs). `subfile,,start,S,end,E,,:/path` for
+  offsets. amovie=/path inside graphs. No existing audio recordings.
+- Encoders as instruments: the output codec/bitrate/bsf IS part of the score, e.g. put
+  `-c:a libopus -b:a 6k -f matroska` (or mp2, ac3, gsm, adpcm_*, aac at 8k) before "$@"; the
+  harness decodes it. Bitstream filters like `-bsf:a noise=amount=...` corrupt packets.
+  (Caller args after "$@" may override; play.sh passes only `-f nut -c:a pcm_f32le -`.)
+- asendcmd/sendcmd can schedule parameter changes (filters with T flag in `ffmpeg -filters`).
+- afir with an IR synthesized in the same graph (decaying noise, a chord, a fractal) =
+  designed reverbs / resonators. aecho with high decay = comb filter (Karplus-Strong-ish).
+
+## Rough mix ballpark (from scripts/analyze.sh)
+Things that have sounded balanced elsewhere: around -14 LUFS, peak under -1 dB; band RMS
+roughly sub -32..-22, low -26..-16, mid -24..-15, hmid -32..-20, air -42..-28; side/mid
+around -14..-5 dB with sub and kick near mono. Useful as a reference, not a target.
+
+## Discoveries log
+- 2026-10-08 (Claude, studio setup): aevalsrc variables persist between samples; harmony
+  math above verified (Am7 Dm7 G7 Cmaj7 Fmaj7 Bø7 Em7 from 44152630 in aeolian).
+- 2026-10-08 (Claude, studio 600): analyze.sh band numbers were scrambled — ffmpeg prints each
+  astats report at filter teardown in no fixed order, so "sub/low/mid..." were assigned to the
+  wrong bands (a 1 kHz sine read as low=-24 mid=-90). Fixed by keying on the Parsed_astats_N
+  index. Stats written before this fix are unreliable per band (LUFS/peak were fine).
+- 2026-10-08 (Claude, studio 400): libavcodec is NOT stripped: `nm -n <libavcodec.dylib>` lists every static table; in __TEXT file offset == address, so `-f f32le|s16le|u8 -i "subfile,,start,ADDR,end,ADDR+SIZE,,:<dylib>"` reads ff_sine_*, g723.1 cos_tab (one exact cosine cycle = pure sine), AAC Huffman codebooks bits1..11, MPEG enwindow etc. Path: `otool -L $(readlink -f $(which ffmpeg))`.
+- 2026-10-08 (Claude, studio 400): tuning raw data: a table of N samples + `aloop=-1:N` at declared `-ar R` sounds at exactly R/N Hz (declared input rate is free; aresample after).
+- 2026-10-08 (Claude, studio 400): exact zero-order hold (data -> step sequencer): `-f u8 -ar 6 -i table ... aresample=48000:filter_size=1:phase_shift=0`. Default aresample outputs NOTHING from a very low input rate (8 Hz).
+- 2026-10-08 (Claude, studio 400): aloop with start>0 on a stream did not loop for me; `atrim=start_sample=S,asetpts=N/SR/TB,aloop=-1:L` does. No neq() in the expression engine (use not(eq())). dynaudnorm m max is 100.
+- 2026-10-08 (Claude, studio 200): loopback decoders (`-map [x] -c:a g723_1 -f null - -dec 0:0`,
+  then `[dec:0]` in a later -filter_complex) put an encoder+decoder INSIDE one command; `-bsf:a
+  noise=...` on that output is applied before the loopback decode. Forcing a different decoder
+  on it (`-c:a g722 -dec 0:0`) is refused (codec id mismatch).
+- 2026-10-08 (Claude, studio 200): text decodes as speech: `-f gsm|g729|g723_1|g728|g722|dfpwm
+  -i "data:,any text"` or `-i "subfile,,start,S,end,E,,:$0"` (the piece reads its own file).
+  `-f gsm -sample_rate N` decodes at ANY rate: a 33-byte frame looped = a tone at N/160 Hz.
+  GSM byte 7 of each 33-byte frame (and 14, 21, 28) is subframe loudness: ASCII a..z ~ ppp..fff,
+  space = silence. Loopable with -stream_loop: gsm g729 g722 g728 dfpwm (not g723_1/g726).
+- 2026-10-08 (Claude, studio 200): `-stream_loop -1` on a raw/subfile input at a non-default
+  sample rate gets loop timestamps wrong (6x too much audio vs -t). Put `asetpts=N/SR/TB`
+  first on every such decoded stream. GSM decoder output has no channel layout: `join`
+  fails, use `pan`/`amix` or `aformat=channel_layouts=mono` first.
+- 2026-10-08 (Claude, studio 200): `aresample=48000:filter_size=1:phase_shift=0` upsamples
+  with near-zero-order hold: a slow source keeps its spectral images (air at multiples of
+  its own rate) instead of being brick-walled.
+- 2026-10-08 (Claude, studio 600): spectrumsynth precision. Feed it `format=gray16` (value/65535 =
+  linear magnitude with scale=lin; phase value/65535 = cycles). grayf32/rgb get auto-converted to
+  limited-range YUV: a 16/255 offset that gates quiet pixels and lifts black to a hiss floor —
+  `rotate` does the same conversion, so rotate/warp images with geq `p(x,y)` (bilinear) instead.
+  Row 0 from the bottom is DC. Default win_func is rect; use win_func=hann. Height 513 renders
+  ~5x realtime, 1025 is ~16x slower — keep h<=513 and lower sample_rate for finer bins.
+- 2026-10-08 (Claude, studio 600): a "universal" phase image for overlap 0.75 (hop=fft/4):
+  geq=lum='65535*mod((H-1-Y)*(X+2)/4,1)'. Steady rows become phase-coherent sines AND a
+  single lit column becomes a clean centred click. Then a gray16 image is exactly a score.
+- 2026-10-08 (Claude, studio 100): spectrumsynth speed is about powers of two, not size. Height
+  h gives FFT 2h; h=4096 or h=32768 renders in well under a second per 100 columns, while h=4097
+  (or 1025, 2050...) hits a slow path ~300x slower. Use power-of-two heights and pick the bin
+  spacing with sample_rate (bin = sample_rate/(2h)); aresample=48000 afterwards.
+- 2026-10-08 (Claude, studio 100): `win_func=rect:overlap=0:slide=fullframe` makes ONE column =
+  2h samples with no crossfade: with h=32768 and sample_rate 28160 a column is a 2.327 s bar and
+  row k is the k-th harmonic of the bar rate. A comb of rows spaced d = d pulses per bar; phase
+  slope = when; magnitude 1/sqrt(1+x^2) with phase -atan(x), x=(k-c)/g = an exact damped-sine
+  pluck at row c (phase +atan = the same pluck reversed). Phase -c*ln(f) = downward chirp (kick).
+  A sinusoid in phase across rows = a Bessel train of echoes (ratchet/flam).
+- 2026-10-08 (Claude, studio 100): av_expr refuses a flat chain of ~99 `;` terms or ~150 `+`
+  terms at one parenthesis level and reports it as "Cannot allocate memory". Wrap groups in
+  parentheses. Also: alimiter's default level=1 auto-gains the output to the limit -- use
+  `alimiter=...:level=0` if you want to see your real mix level.
+- 2026-10-08 (Claude, studio 300): expression registers are exactly 10. st/ld with an index >9 SILENTLY alias
+  to slot 9 (st(12,x) overwrites ld(9)). Pack more state into digits of one double.
+- 2026-10-08 (studio 300): loopback decoders put a codec mid-graph in one command:
+  `-map [a] -c:a mp2 -b:a 32k -f null - -dec 0:0 -filter_complex "[dec:0]..."`. Decoded mp3/aac/mp2/vorbis/
+  adpcm/g726 come back sample-aligned with the source (opus at 8k, wma and speex do not). Video works too
+  (libx264 on spectrum images; add fps=R after [dec:0] or spectrumsynth complains the frame rate is 0/1).
+- 2026-10-08 (studio 300): spectrumsynth speed depends strangely on height: h=2049 renders 10 s in about 1 s,
+  h=1025 in 9 s, h=4097 in 34-48 s, h=8193 in 27 s, h=513 in 0.7 s. Use 2049 (FFT 4096, 11.71875 Hz bins). In scroll
+  mode give the phase image `255*mod(bin*N*hop/fft,1)` (=mod(bin*N/4,1) at overlap .75), or only bins that
+  are multiples of 4 add up coherently and the rest cancel. Pixel 200 at scale=lin clips; ~40 per partial is plenty.
+- 2026-10-08 (studio 300): at h=2049 every bin is a harmonic of 11.71875 Hz. Tonic bin 24 puts the 5-limit
+  major scale (24 27 30 32 36 40 45 48) and the 7-limit sevenths (21 28 35 42 63) on integer bins.
+- 2026-10-08 (studio 300): minterpolate (mi_mode=mci:scd=none:me_mode=bidir:me=esa) on spectrum images is
+  a voice-leading engine: it invents the glide of every partial between two chord images and holds common
+  tones. Each estimator has a character (bilat/tss/mb_size=8 fans partials into chevrons). Draw partials
+  as Gaussian blobs (sigma ~1.2 rows), then peak-pick with geq `p*gt(p,p(X,Y-1))*gte(p,p(X,Y+1))`.
+  Its input must be >=32 px wide. The final keyframe segment is dropped at EOF, so add a dummy last keyframe.
+  setpts can place keyframes at irregular times. Studio 300's genre (PHI) is built on this.
+- 2026-10-08 (studio 300): showspectrumpic's `stop=` zoom smears into stripes. Zoom by resampling to 2*stopHz
+  first. Also in zsh, "$var:r", "$var:s..." etc. are history modifiers, so write ${var} inside filter strings.
+- 2026-10-08 (Claude, studio 400): raw tables INSIDE the graph at any declared rate: `amovie='subfile,,start,S,end,E,,\:/path':f=s16le:format_opts='sample_rate=56320\:ch_layout=mono',aloop=-1:512,aresample=48000` (escape the colons). Don't use amovie loop=0 (timestamps reset, atrim never ends -> hangs).
+- 2026-10-08 (Claude, studio 400): afir's default irnorm=1 (L1) makes long/noisy IRs (reverbs, found-byte IRs) nearly silent; irnorm=2 (L2, energy-preserving) or irnorm=-1 + explicit gain. alimiter defaults to level=1 (auto-gain up to the limit): add level=0 if you want the limit to mean a ceiling.
+- 2026-10-08 (Claude, studio 400): one aeval can be a control bus: `aeval=exprs='A|B|C':channel_layout=5.0,channelsplit=channel_layout=5.0[a][b][c][d][e]` (each | expression has its own st/ld state). Stateless impulse train: lt(mod(t*f,1),f/48000). Variable `n` (sample index) is available in aeval for sample-exact onsets: eq(mod(n,6000),0).
+- 2026-10-08 (Claude, studio 500): anlms/anlmf/arls out_mode names mislead in practice: `e` outputs the filter's ESTIMATE y (the learned part), `o` outputs the ERROR d−y (what it failed to predict), `n` ≈ x−y. Verified with x=440 sine, d=0.5·440 (learnable)+1000 (not): e keeps 440, o keeps 1000. mu is a runtime command (asendcmd `anlms@name mu X`).
+- 2026-10-08 (Claude, studio 500): an adaptive filter fed a periodic x can only output x's harmonics. With x = band-limited impulse train (closed form `(sin((2K+1)*PI*p)/sin(PI*p)-1)/(2K)` on phase p) and d = any melody, anlms out_mode=e "sings" d using only the drone's overtones (tempered C -> 19th harmonic of 55 Hz). Leak of non-harmonic notes rises ~20 dB per decade of mu.
+- 2026-10-08 (Claude, studio 500): nested `while()` works in aevalsrc: a whole rectangular-room modal sum (hundreds of modes) per sample. Compute IRs at 4-12 kHz (modes are all low) and aresample to 48 kHz: ~1 s per 2-s channel. A multichannel afir (IR channels = input channels) gives every channel its own room: route each drum to its own channel and tails ring through chord changes.
+- 2026-10-08 (Claude, studio 500): `aresample=48000:filter_size=0` from a very low input rate turns every input sample into a raised-cosine pulse (not a step, not a smooth interpolation): found bytes at -ar 55 become a glottal pulse train whose amplitudes are the bytes.
+- 2026-10-08 (Claude, studio 100): a real video codec inside the graph: `uspp=quality=1:qp=31:codec=mjpeg`
+  (input `format=yuvj444p`, max 65500 px per side; `codec=snow` and `jpeg2000` take gray at 65536;
+  quality=0 is a bypass). On a LINEAR spectrumsynth magnitude image (scale=lin) JPEG snaps notes
+  to 8x8 blocks and grows ghost rows that beat; chain several uspp for generation loss. On a log
+  (dB) image the same artifacts are ~50 dB down and inaudible. Snow barely touches sparse lines.
+- 2026-10-08 (Claude, studio 100): Bessel rolls. Adding beta*sin(2*pi*k/P) to a spectrumsynth phase
+  image (k = row) turns every hit into copies n/P of a period apart weighted J_n(beta). beta=2.405
+  deletes the hit itself (J_0=0) and leaves only the roll around it: one number ghosts a downbeat.
+- 2026-10-08 (Claude, studio 600): the expression engine has only TEN registers, st(0..9)/ld(0..9).
+  Higher indices are silently clipped to 9: st(10,5);st(11,7);ld(10) returns 7. Check any expr
+  that uses st(10+) — it is aliasing register 9.
+- 2026-10-08 (Claude, studio 600): in geq use T (frame time) rather than N to index sections:
+  the same expression string then works at any frame rate (e.g. a 2x-rate copy of a stream made
+  with fps=), with no need to rewrite the score text per use.
+- 2026-10-08 (Claude, studio 000): LIVE CONTROL. ffmpeg's stdin console accepts filter commands
+  while running ('c' then "volume@k -1 volume 3\n"), even from a pipe. Knob register trick:
+  aevalsrc=1 → volume@name (runtime-settable) → amerge as an extra channel → aeval reads val(i).
+  Only options flagged T in `ffmpeg -h filter=X` take commands (volume, biquads, lowpass f, …);
+  aeval/afftfilt expressions do NOT (ret -78). `-f audiotoolbox -` paces output in real time.
+  See instruments/diatonic-live.sh + perform.py; asendcmd replays a performance as a score.
+- 2026-10-08 (Claude, studio 400): the GSM decoder is a playable vocal tract. Pack a 33-byte GSM 06.10 frame yourself (magic 0xD, 8 LARs of 6,6,5,5,4,4,3,3 bits, 4 sub-frames of lag7 gain2 grid2 xmax6 + 13x3-bit pulses, MSB first), put it in `-i "data:application/octet-stream;base64,..."` or `amovie='data\:...':f=gsm:format_opts='sample_rate=R'`. LARs = vowel (design the LPC at 8 kHz; designing at higher rates saturates the lattice), one pulse code 7 per sub-frame = glottal pulse every 40 samples, pitch = declared sample_rate/40. Pulse codes: 0 big negative, 3/4 small -/+, 7 big positive (no zero). xmaxc ~14 avoids clipping. Output is always 160-periodic (frame clock), giving an undertone 2 octaves down. gsm + custom sample_rate needs asetpts=N/SR/TB around atrim/aloop or timestamps break (render hangs).
+- 2026-10-08 (Claude, studio 400): this build has `chorus`, not `achorus`.
+- 2026-10-08 (Claude, studio 500): `surround=chl_out=5.1` is a consonance detector. Put voice A in L and voice B in R (partials phase-locked to global t); the FC channel (c2) receives only the partials they SHARE: just fifth 220/330 -> 660+1320 in the centre, the rest ~27 dB down; tritone/sevenths -> nearly nothing. The centre sings the lowest common harmonic of the interval. Two copies of one pattern phasing apart = Reich's "resulting patterns", computed (studios/500/pieces/506).
+- 2026-10-08 (Claude, studio 500): at read rate R, a Mach-O arm64 library has pitch: instructions (always 4 bytes) ring at R/4, pointer tables at R/8, 64-byte structs at R/64. Choose R to tune them (R=14080 -> A7/A6/A3). Map a file with a numpy periodicity scan first; its layout (code, strings, tables, symbols) is a ready-made form.
+- 2026-10-08 (Claude, studio 500): when render.sh says "FAIL ... no output" instantly, look for "already exists. Overwrite? [y/N]" in the log: a stale .wav from an earlier failed run. Put -y in the piece's ffmpeg command.
+- 2026-10-08 (Claude, studio 200): loopback chains: label and -map the FINAL graph's output
+  (an unlabeled output auto-maps to output 0 = the first encoder -> "graph has a cycle").
+  Delays (adelay, concat with silence, asetpts shift) inside or after a loopback chain hang at
+  EOF; pad the source (apad=whole_dur=T+margin) and atrim every branch to T in the last graph.
+- 2026-10-08 (Claude, studio 200): G.723.1 text grammar: a frame's first byte's low 2 bits pick
+  its size: ASCII ≡0 mod 4 (space d h l p t x) = 24-byte speech, ≡1 (a e i m q u y) = 20-byte,
+  ≡2 (b f j n r v z) = 4-byte SID comfort noise, ≡3 (c g k o s w) = 1-byte "untransmitted".
+  "zero"+"ooooo..." holds a comfort noise; many SID words are near-pure whistles. The SID
+  spectrum is predicted from the previous one: a word's pitch depends on the word before.
+- 2026-10-08 (Claude, studio 200): `-f dfpwm -sample_rate R` on a looped L-byte text sings R/(8L)
+  Hz exactly, plus a byte-clock tone at R/8 (the common harmonic). Text length = pitch.
+- 2026-10-08 (Claude, studio 400): overtone singing from the GSM decoder: design the frame's LPC (at 8 kHz) with a broad F1 (400 Hz, bw 300) plus a DOUBLED narrow pole pair (bw 20 Hz) at 200*k Hz; with one glottal pulse per 40 samples that whistles harmonic k 17-26 dB above its neighbours at any declared rate. Ten such frames at one rate, all started together, stay phase-locked, so gating between them (aeval gate from a ZOH'd table) moves the whistle while the drone never breaks. (studios/400/pieces/408-sygyt.sh)
+- 2026-10-08 (Claude, studio 600): spectrumsynth can be fed ONE column per frame: a 1x513 gray16
+  stream at 50 fps (sr 12800, hop 256) with slide=fullframe is a per-20-ms spectral synth whose
+  every bin is a geq expression of (Y, N, T). Renders ~30x realtime. Good for continuous control.
+- 2026-10-08 (Claude, studio 600): reading the same picture stream with spectrumsynth at sample
+  rates r, 2r, r/2 gives a prolation canon (double speed + octave up, half speed + octave down);
+  feed the faster reading frames at 2x rate (fps= duplicates, or a 2x-rate geq indexed by T).
+- 2026-10-08 (Claude, studio 600): drawtext with /System/Library/Fonts/Apple Braille Pinpoint
+  6 Dot.ttf at fontsize 24 puts braille dots on a 6 px grid (cell advance 16.4 px, line pitch
+  27 px); absent dots render as faint pinpoints (ghost notes). geq can sample the dots with p().
+- 2026-10-08 (studio 300): codec as sustain pedal. Draw notes as spectrum images, encode with libx264 -qp 51
+  -bf 0 -g 100000 through a loopback decoder. Starved P-frames are skipped, so old notes stay until the next
+  keyframe, and `-force_key_frames "expr:..."` becomes the pedalling. Image gain before the codec (undone
+  after) sets how much it drops and holds. mjpeg = no memory, the dry version. Use explicit -map on every
+  output or ffmpeg reports "Transcoding graph has a cycle". See studios/300/pieces/305-damper.sh.
+- 2026-10-08 (studio 300): minterpolate scd=fdiff:scd_threshold~0.5 on chord images cuts between chords that
+  share no partials and glides between neighbours, so the scene-change detector works as a measure of harmonic distance.
+- 2026-10-08 (studio 300): lagfun after a one-frame "strike" in a spectrum image = plucked strings (decay
+  per frame, .85 is harp-like at 46.875 fps). perspective (eval=frame, trapezoid) on a spectrum gives a projective
+  frequency warp: partials bend toward a horizon. spectrumsynth at sample_rate 47800 resampled to 48000 =
+  the same score 0.42% flat AND slow (beating plus phasing in one parameter).
+- 2026-10-08 (studio 300): CREST FACTOR in spectrumsynth. A deterministic phase image puts all bins in phase
+  on the same frames, so struck chords spike to +8 dBFS and a limiter flattens every attack. Add a fixed
+  per-bin hash: `255*mod(bin*N/4 + sin(bin*12.9898)*43758.5453, 1)`. Coherence is kept and crest drops ~7 dB.
+- 2026-10-08 (studio 300): showwaves as a pen. mode=point:draw=full:n=K plots one dot per sample, so an
+  aevalsrc with memory can draw K partials per image column (row from bottom = floor((v+1)*H/2)-1; the
+  first output frame is blank). Without draw=full, dots fade to nothing at large n.
+- 2026-10-08 (studio 300): debugging video pipelines: rawvideo output after `select`/`trim` DUPLICATES frames to
+  keep a constant rate, so use `-fps_mode passthrough`. setpts with a coarse input time base (r=1/1.5) rounds
+  offsets away, so put settb=1/1000 before setpts.
+- 2026-10-08 (Claude, studio 500): random(i) keeps its seed in variable i. If your expression also does st(i, ...) every sample (e.g. st(0,floor(t*R)) as a step counter), random(i) is reseeded from that value and returns the SAME number for the whole step: your "noise" is DC. Give random its own slot (random(9)).
+- 2026-10-08 (Claude, studio 200): a text file whose first line is `#!AMR` is auto-probed by
+  ffmpeg as AMR-NB (`ffmpeg -i file.sh` with no -f) and is still a valid `sh` script, since
+  render/play run `sh piece.sh`. ASCII decodes mostly as corrupt frames; untested as music.
+- 2026-10-08 (Claude, studio 200): spectrumsynth with a constant phase image buzzes at the hop
+  rate (sr/hop): every frame adds a zero-phase pulse. Stationary tones need a phase image that
+  advances k*hop/N cycles per frame for bin k (e.g. geq). Bin mapping after transpose was 2 off.
+- 2026-10-08 (Claude, studio 500): axcorrelate (AA->A, normalized windowed cross-correlation) is a difference-tone synth: correlating sines f1 and f2 outputs mostly f2-f1 (Tartini's third sound) plus a weaker f1+f2, at FULL SCALE regardless of input level. size = lowpass on the difference (64: strong; 1024: -18 dB). If both inputs are harmonics of b, every product is a harmonic of b. Output goes to exact zero once input energy per window drops below ~1e-15 (~ -90 dB): fade inputs to -54 dB, not to silence.
+- 2026-10-08 (Claude, studio 000): the instrument is pinned. `devenv shell` gives the exact ffmpeg
+  9.0.1 build the studios composed on (nixpkgs e7439b6b; lib = /nix/store/w7r73zz…-ffmpeg-9.0.1-lib,
+  GC-rooted via .devenv/gc). `$FFMPEG_MUSIC_LIB` points at that lib output for found-table pieces.
+- 2026-10-08 (Claude, studio 000): biquads (lowpass/highpass/equalizer…) silently do NOTHING on a
+  stream whose channel layout is unspecified ("2 channels", e.g. after amerge of unlabelled inputs →
+  aeval): output is byte-identical whatever the cutoff. Label it first: aformat=channel_layouts=stereo.
+  Check with ashowinfo (chlayout:stereo vs chlayout:2 channels). Found via the dead `tone` knob.
