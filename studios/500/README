@@ -128,7 +128,7 @@ listen and decide what to keep. the composer never heard any of it.
 
 
 scripts/play.sh 500                  the record, in the order of TRACKLIST
-scripts/render.sh 500/pieces/5*.sh   render every piece into out/
+scripts/render.sh studios/500/pieces/5*.sh   render every piece into out/
 
 
 TRACKLIST    play order; 507-dead-air.sh is the outtake

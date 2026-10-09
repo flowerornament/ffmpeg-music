@@ -8,13 +8,13 @@ spectrograms, muxing. Run inside `devenv shell` (provides vhs, ffmpeg, fzf, chaf
 usage: scripts/release.py [NNN ...]          default: every studio with a TRACKLIST
        scripts/release.py --only covers|stills|browse|listen|trailer|label [NNN ...]
 
-out: release/NNN/cover.png       2048×2048  the top of NNN/README (the album cover)
+out: release/NNN/cover.png       2048×2048  the top of studios/NNN/README (the album cover)
      release/NNN/tracklist.png   2048×2048  TRACKLIST
      release/NNN/browse.mp4      1920×1080  scripts/browse.sh walking the tracklist, with the music (~70 s)
      release/NNN/listen.mp4      1080×1350  cover over a live spectrogram, excerpt of every track (~70 s)
      release/trailer.mp4         1920×1080  ~21 s per album, ≤ 140 s (X's limit for standard accounts)
      release/ffmpeg-music.png    2048×2048  the label cover (root README art)
-     README                      --only label rewrites its art: the catalog's spectrogram as text
+     README, studios/README      --only label rebuilds the catalog diagram and the catalog's spectrogram
 
 Video: H.264 high, yuv420p, 30 fps, AAC 256k, +faststart (what X expects).
 """
@@ -66,19 +66,19 @@ def ffmpeg(*args):
 
 
 def tracks(studio):
-    tl = os.path.join(ROOT, studio, "TRACKLIST")
+    tl = os.path.join(ROOT, "studios", studio, "TRACKLIST")
     out = []
     for line in open(tl, encoding="utf-8"):
         t = line.split("#", 1)[0].strip()
-        if t and os.path.isfile(os.path.join(ROOT, studio, "pieces", t)):
+        if t and os.path.isfile(os.path.join(ROOT, "studios", studio, "pieces", t)):
             out.append(t[:-3])
     return out
 
 
 def mp3(studio, slug):
-    m = os.path.join(ROOT, studio, "out", slug + ".mp3")
+    m = os.path.join(ROOT, "studios", studio, "out", slug + ".mp3")
     if not os.path.isfile(m):
-        run([os.path.join(ROOT, "scripts", "render.sh"), f"{studio}/pieces/{slug}.sh"])
+        run([os.path.join(ROOT, "scripts", "render.sh"), f"studios/{studio}/pieces/{slug}.sh"])
     return m
 
 
@@ -209,9 +209,9 @@ def label(segs, W, y):
 
 # ---------------------------------------------------------------- assets
 def cover_text(studio, dest, max_lines=60):
-    """The album cover: the top of the studio's plain-text front page (NNN/README), what a
+    """The album cover: the top of the studio's plain-text front page (studios/NNN/README), what a
     visitor sees on arrival, up to max_lines, trailing blank lines removed."""
-    L = open(os.path.join(ROOT, studio, "README"), encoding="utf-8").read().split("\n")[:max_lines]
+    L = open(os.path.join(ROOT, "studios", studio, "README"), encoding="utf-8").read().split("\n")[:max_lines]
     while L and not L[-1].strip():
         L.pop()
     open(dest, "w", encoding="utf-8").write("\n".join(L) + "\n")
@@ -229,7 +229,7 @@ def covers(studio):
 def stills(studio):
     d = os.path.join(OUT, studio)
     os.makedirs(d, exist_ok=True)
-    still(os.path.join(ROOT, studio, "TRACKLIST"), os.path.join(d, "tracklist.png"), 2048, 2048)
+    still(os.path.join(ROOT, "studios", studio, "TRACKLIST"), os.path.join(d, "tracklist.png"), 2048, 2048)
 
 
 def browse(studio):
@@ -324,49 +324,72 @@ def trailer(studios):
 
 
 def label_span(text):
-    """Where the art sits in the root README: after the title's blank line, before the blank
-    line that precedes the commands (devenv shell)."""
+    """Where the catalog sits in the root README: after the title's blank line, before the
+    blank line that precedes the commands (devenv shell)."""
     a = text.index("\n\n") + 2
     b = text.index("\n\ndevenv shell")
     return a, b
 
 
-def label():
-    """The label page: the whole catalog (every TRACKLIST, in order) as one spectrogram, printed
-    as text. Time runs down, low frequencies left; characters by rank, so the quietest ~half of
-    the cells are air. Catalog numbers mark where each album begins. Written into the plain-
-    text root README between its title and the commands."""
-    W, H = 72, 56
-    steps = [(0.46, " "), (0.62, "·"), (0.74, ":"), (0.83, "-"), (0.90, "="), (0.95, "+"), (0.98, "*")]
-    studios = sorted(s for s in os.listdir(ROOT) if re.fullmatch(r"\d{3}", s)
-                     and os.path.isfile(os.path.join(ROOT, s, "TRACKLIST")))
+def catalog_runtime(studios):
     files, marks, total = [], [], 0.0
     for st in studios:
         marks.append((total, st))
         for slug in tracks(st):
             f = mp3(st, slug)
-            files.append(f"file '{f}'")
+            files.append(f)
             total += duration(f)
+    return files, marks, total
+
+
+def label():
+    """The label's two pages, both rebuilt from the TRACKLISTs.
+    README: the catalog drawn as a filtergraph (six inputs, one ffmpeg, out to "$@") and
+    ffmpeg's progress line for the whole runtime. studios/README: the catalog's sound, every
+    track in order as one spectrogram printed as text (time down, low frequencies left,
+    characters by rank so the quietest ~half is air), catalog numbers in the margin."""
+    studios = sorted(s for s in os.listdir(os.path.join(ROOT, "studios")) if re.fullmatch(r"\d{3}", s)
+                     and os.path.isfile(os.path.join(ROOT, "studios", s, "TRACKLIST")))
+    files, marks, total = catalog_runtime(studios)
+    hms = "%02d:%02d:%05.2f" % (total // 3600, total % 3600 // 60, total % 60)
+
+    # README: the diagram
+    rows = [(st, *ALBUMS.get(st, (st, ""))) for st in studios]
+    aw = max(len(a) for _, a, _ in rows) + 3
+    tw = max(len(t) for *_, t in rows) + 1
+    mid = (len(rows) - 1) // 2 + (1 if len(rows) % 2 == 0 else 0)
+    lines = []
+    for i, (n, a, t) in enumerate(rows):
+        j = "┐" if i == 0 else "┘" if i == len(rows) - 1 else "┼" if i == mid else "┤"
+        line = f"[{n}] {a} " + "·" * (aw - len(a) - 1) + f" {t} " + "─" * (tw - len(t)) + j
+        lines.append(line + ('─▶ ffmpeg ─▶ "$@"' if i == mid else ""))
+    art = "\n".join(lines) + f"\n\nframe=    0 fps=0.0 q=-0.0 size=N/A time={hms} bitrate=N/A speed=N/A"
+    readme = os.path.join(ROOT, "README")
+    text = open(readme, encoding="utf-8").read()
+    a, b = label_span(text)
+    open(readme, "w", encoding="utf-8").write(text[:a] + art + text[b:])
+
+    # studios/README: the sound
+    W, H = 72, 24
+    steps = [(0.46, " "), (0.62, "·"), (0.74, ":"), (0.83, "-"), (0.90, "="), (0.95, "+"), (0.98, "*")]
     with tempfile.TemporaryDirectory() as tmp:
-        lst, png = os.path.join(tmp, "list.txt"), os.path.join(tmp, "spec.png")
-        open(lst, "w").write("\n".join(files) + "\n")
-        ffmpeg("-f", "concat", "-safe", "0", "-i", lst, "-ac", "1", "-ar", "32000", "-lavfi",
-               "showspectrumpic=s=512x1024:orientation=horizontal:legend=0:color=intensity:scale=log:fscale=log,format=gray",
-               "-frames:v", "1", png)
+        ins, g = [], ""
+        for i, f in enumerate(files):
+            ins += ["-i", f]
+            g += f"[{i}:a]aformat=sample_rates=32000:channel_layouts=mono[a{i}];"
+        g += "".join(f"[a{i}]" for i in range(len(files))) + f"concat=n={len(files)}:v=0:a=1," \
+             "showspectrumpic=s=512x1024:orientation=horizontal:legend=0:color=intensity:scale=log:fscale=log,format=gray"
+        png = os.path.join(tmp, "spec.png")
+        ffmpeg(*ins, "-lavfi", g, "-frames:v", "1", png)
         raw = subprocess.run(["ffmpeg", "-v", "error", "-i", png, "-vf", f"scale={W}:{H}:flags=area",
                               "-f", "rawvideo", "-pix_fmt", "gray", "-"], capture_output=True).stdout
     vals = sorted(raw)
     cuts = [(vals[min(len(vals) - 1, int(q * len(vals)))], c) for q, c in steps]
     ch = lambda v: next((c for cut, c in cuts if v < cut), "#")
-    rowmark = {min(H - 1, int(t / total * H)): st for t, st in marks}
-    rows = [f"{rowmark.get(r, ''):>3}  " + "".join(ch(v) for v in raw[r * W:(r + 1) * W]).rstrip() for r in range(H)]
-    hms = "%02d:%02d:%05.2f" % (total // 3600, total % 3600 // 60, total % 60)
-    art = "\n".join(r.rstrip() for r in rows)
-    readme = os.path.join(ROOT, "README")
-    text = open(readme, encoding="utf-8").read()
-    a, b = label_span(text)
-    open(readme, "w", encoding="utf-8").write(text[:a] + art + text[b:])
-    print(f"  README art: {len(files)} tracks, {hms}")
+    rowmark = {min(H - 1, round(t / total * H)): st for t, st in marks}
+    spec = [(f"{rowmark.get(r, ''):>3}  " + "".join(ch(v) for v in raw[r * W:(r + 1) * W])).rstrip() for r in range(H)]
+    open(os.path.join(ROOT, "studios", "README"), "w", encoding="utf-8").write("studios\n\n" + "\n".join(spec) + "\n")
+    print(f"  catalog: {len(files)} tracks, {hms}")
 
 
 def repo_card():
@@ -385,8 +408,8 @@ def main():
     only = None
     if args[:1] == ["--only"]:
         only, args = args[1], args[2:]
-    studios = args or sorted(s for s in os.listdir(ROOT) if re.fullmatch(r"\d{3}", s)
-                             and os.path.isfile(os.path.join(ROOT, s, "TRACKLIST")))
+    studios = args or sorted(s for s in os.listdir(os.path.join(ROOT, "studios")) if re.fullmatch(r"\d{3}", s)
+                             and os.path.isfile(os.path.join(ROOT, "studios", s, "TRACKLIST")))
     steps = {"covers": covers, "stills": stills, "browse": browse, "listen": listen}
     for st in studios:
         for name, fn in steps.items():

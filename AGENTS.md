@@ -19,12 +19,12 @@ LAYOUT
 PROCESS
 
 1. devenv shell.
-2. Write NNN/pieces/NNN-slug.sh: comment header, then one ffmpeg command ending
+2. Write studios/NNN/pieces/NNN-slug.sh: comment header, then one ffmpeg command ending
    in "$@".
-3. scripts/render.sh NNN/pieces/NNN*.sh → out/NNN*.{mp3,png,stats,log}.
+3. scripts/render.sh studios/NNN/pieces/NNN*.sh → out/NNN*.{mp3,png,stats,log}.
 4. Agents cannot hear. Judge from the spectrogram png, loudness, band levels and
    side/mid, plus your own measurement tools (see
-   {200,300,500}/tools/). Mark pieces as unheard.
+   studios/{200,300,500}/tools/). Mark pieces as unheard.
 5. Keep JOURNAL; leave HANDOFF for a successor without your context.
 
 WRITING

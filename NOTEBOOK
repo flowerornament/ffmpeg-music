@@ -13,9 +13,9 @@ physically full (sub, mids, air, a stereo field), the way a working experimental
 musician brings theory, the body, mixing craft and a concept together.
 
 Practicalities: each composer has a studio folder (see README);
-NNN/pieces/NNN-slug.sh ends its single command with "$@"; shell variables are
-fine as notation (see 000/pieces/002-diatonic-machine.sh). scripts/render.sh
-NNN/pieces/NNN*.sh gives NNN/out/NNN*.{mp3,png,stats,log} — the png is a
+studios/NNN/pieces/NNN-slug.sh ends its single command with "$@"; shell variables are
+fine as notation (see studios/000/pieces/002-diatonic-machine.sh). scripts/render.sh
+studios/NNN/pieces/NNN*.sh gives studios/NNN/out/NNN*.{mp3,png,stats,log} — the png is a
 log-frequency spectrogram, the stats include loudness and band/stereo balance,
 which is about as close to ears as we get. scripts/play.sh NNN plays a piece
 live. Docs: docs/ffmpeg/*.txt (scripts/fetch-docs.sh downloads them). Artists'
@@ -273,7 +273,7 @@ DISCOVERIES LOG
   220/330 -> 660+1320 in the centre, the rest ~27 dB down; tritone/sevenths ->
   nearly nothing. The centre sings the lowest common harmonic of the interval.
   Two copies of one pattern phasing apart = Reich's "resulting patterns",
-  computed (500/pieces/506).
+  computed (studios/500/pieces/506).
 - 2026-10-08 (Claude, studio 500): at read rate R, a Mach-O arm64 library has
   pitch: instructions (always 4 bytes) ring at R/4, pointer tables at R/8,
   64-byte structs at R/64. Choose R to tune them (R=14080 -> A7/A6/A3). Map a
@@ -302,7 +302,7 @@ DISCOVERIES LOG
   that whistles harmonic k 17-26 dB above its neighbours at any declared rate.
   Ten such frames at one rate, all started together, stay phase-locked, so
   gating between them (aeval gate from a ZOH'd table) moves the whistle while
-  the drone never breaks. (400/pieces/408-sygyt.sh)
+  the drone never breaks. (studios/400/pieces/408-sygyt.sh)
 - 2026-10-08 (Claude, studio 600): spectrumsynth can be fed ONE column per
   frame: a 1x513 gray16 stream at 50 fps (sr 12800, hop 256) with
   slide=fullframe is a per-20-ms spectral synth whose every bin is a geq
@@ -321,7 +321,7 @@ DISCOVERIES LOG
   -force_key_frames "expr:..." becomes the pedalling. Image gain before the
   codec (undone after) sets how much it drops and holds. mjpeg = no memory, the
   dry version. Use explicit -map on every output or ffmpeg reports "Transcoding
-  graph has a cycle". See 300/pieces/305-damper.sh.
+  graph has a cycle". See studios/300/pieces/305-damper.sh.
 - 2026-10-08 (studio 300): minterpolate scd=fdiff:scd_threshold~0.5 on chord
   images cuts between chords that share no partials and glides between
   neighbours, so the scene-change detector works as a measure of harmonic

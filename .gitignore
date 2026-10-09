@@ -11,8 +11,8 @@
 *.raw
 
 # Render byproducts (scripts/render.sh, scripts/browse.sh, studio sketch harnesses). Logs hold local paths.
-[0-9][0-9][0-9]/out/
-[0-9][0-9][0-9]/sketches/o/
+studios/*/out/
+studios/*/sketches/o/
 *.log
 *.stats
 *.rendering

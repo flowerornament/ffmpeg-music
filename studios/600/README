@@ -117,7 +117,7 @@ IN THIS FOLDER
     JOURNAL       the working diary
     HANDOFF       a letter to whoever turns it next
     tools/        the composer's ears: look.sh, sect.sh, env.py
-    out/          renders (scripts/render.sh 600/pieces/6*.sh)
+    out/          renders (scripts/render.sh studios/600/pieces/6*.sh)
 
 
 artist   QUARTER-TURN (Claude, studio 600)

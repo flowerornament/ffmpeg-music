@@ -234,7 +234,7 @@ G5 RAW BYTES AS AUDIO, INCL. TUNED BINARY
   Mach-O, 4-byte instructions ring at R/4, 8-byte pointer tables at R/8, 64-byte
   structs at R/64, so R=14080 puts all three on A (A7/A6/A3). The file's layout
   (code, help strings, records, pointer tables, symbols) is a ready-made form.
-  500/tools/map_bytes.py maps it by periodicity.
+  studios/500/tools/map_bytes.py maps it by periodicity.
 - Instrument: in: file + offsets + R. Out: audio (or a target signal for P14, as
   in 504). Coupling: low; 504 hard-codes the libavfilter Nix path, like G12.
   Live: no.
@@ -299,7 +299,7 @@ G10 GSM VOCAL TRACT / CODEC-FRAME OSCILLATOR
 
 - From: 200/s01, 201 (tones), 203 (settle + hold), journal (G.729);
   400/405-vox-humana, x08-gsm-vowel-pipe; frame packer
-  400/tools/gsmframes.py (my first snapshot said the packer was
+  studios/400/tools/gsmframes.py (my first snapshot said the packer was
   missing; it is now in the repo).
 - Sound: a steady vowel-coloured voice; in 405 a chorale singing the first
   paragraph of ffmpeg's manual.

@@ -1,7 +1,7 @@
 #!/bin/sh
 # sketch: 6 generations of one codec inside one command (loopback decoders). usage: s06-chain.sh CODEC RATE out.wav
 C=$1; R=$2; shift 2
-ffmpeg -hide_banner -y -stream_loop 30 -f gsm -sample_rate 8000 -i "subfile,,start,10,end,538,,:200/pieces/201-prolation.sh" \
+ffmpeg -hide_banner -y -stream_loop 30 -f gsm -sample_rate 8000 -i "subfile,,start,10,end,538,,:studios/200/pieces/201-prolation.sh" \
  -filter_complex "[0]asetpts=N/SR/TB,aresample=$R,aformat=channel_layouts=mono,atrim=0:8,asplit[g0][m0]" -map "[g0]" -c:a $C -f null - -dec 0:0 \
  -filter_complex "[dec:0]aresample=$R,asplit[g1][m1]" -map "[g1]" -c:a $C -f null - -dec 1:0 \
  -filter_complex "[dec:1]aresample=$R,asplit[g2][m2]" -map "[g2]" -c:a $C -f null - -dec 2:0 \

@@ -1,7 +1,7 @@
 #!/bin/bash
 # sketch renderer (not art): sk500.sh a.sh b.sh -> $OUT/name.{wav,png,log} + loudness/band line
-# OUT defaults to ./o ; renders in parallel; never touches [0-9][0-9][0-9]/out.
-OUT=${OUT:-./o}; mkdir -p "$OUT"; R=$(cd "$(dirname "$0")/../.." && pwd)
+# OUT defaults to ./o ; renders in parallel; never touches studios/*/out.
+OUT=${OUT:-./o}; mkdir -p "$OUT"; R=$(cd "$(dirname "$0")/../../.." && pwd)
 for p in "$@"; do n=$(basename "$p" .sh); o=$OUT/$n
 ( start=$(date +%s)
 if ! timeout 280 sh "$p" -y "$o.wav" >"$o.log" 2>&1 </dev/null; then echo "FAIL $n: $(grep -iE 'error|invalid|unable|out of range|no such|undefined' "$o.log" | head -3 | tr '\n' ' ')"; exit; fi

@@ -7,5 +7,5 @@ ffmpeg -hide_banner -loglevel error -y -i "$o.wav" -lavfi "showspectrumpic=s=120
 s=$(ffmpeg -hide_banner -i "$o.wav" -af "ebur128=peak=true:framelog=quiet" -f null - 2>&1)
 I=$(echo "$s"|awk '/ I:/{print $2}'|tail -1); P=$(echo "$s"|awk '/Peak:/{print $2}'|tail -1)
 d=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$o.wav")
-echo "$n dur=${d%.*} I=$I peak=$P r=$(( $(date +%s)-st ))s $("$D/../../scripts/analyze.sh" "$o.wav")" | tee "$o.stats"
+echo "$n dur=${d%.*} I=$I peak=$P r=$(( $(date +%s)-st ))s $("$D/../../../scripts/analyze.sh" "$o.wav")" | tee "$o.stats"
 done

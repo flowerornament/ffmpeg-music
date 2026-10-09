@@ -1,6 +1,6 @@
-# frontpage.py — generates 500/README, the plain-text front page: the paragraph through the
+# frontpage.py — generates studios/500/README, the plain-text front page: the paragraph through the
 # room, and three-row text spectrograms of each track (beginning, middle, end) from out/*.mp3.
-# run from the repo root after rendering: uv run --with numpy python 500/tools/frontpage.py
+# run from the repo root after rendering: uv run --with numpy python studios/500/tools/frontpage.py
 import subprocess, numpy as np, random, glob
 g0="a knock, a breath, a melody you will never hear, a manual reading itself aloud, the bytes of the program that made this, sent into a room built from arithmetic and played back into it again and again until nothing is left but what a room keeps"
 w=g0.split(' '); n=len(w); keep={n-4,n-3,n-2,n-1}
@@ -61,7 +61,7 @@ for k,lab in enumerate(["27","55","110","220","440","880","1.7k","3.5k"]):
 P("hz".ljust(15)+''.join(ruler).rstrip())
 P(M+"|·······"*8+"|"); P()
 for i,(num,t1,t2,dur,desc) in enumerate(T,1):
-    r=rows(glob.glob(f"500/out/{num}-*.mp3")[0])
+    r=rows(glob.glob(f"studios/500/out/{num}-*.mp3")[0])
     left=[f"{i:>2} {t1}", f"   {t2}" if t2 else f"   {dur}", f"   {dur}" if t2 else ""]
     for L,row in zip(left,r): P((f"{L:<15}"+row).rstrip())
     P(M+desc); P()
@@ -78,7 +78,7 @@ for l in ["ten pieces, 22 minutes 48 seconds. each one is a single ffmpeg comman
 "listen and decide what to keep. the composer never heard any of it."]: P(l)
 P(); P()
 P("scripts/play.sh 500                  the record, in the order of TRACKLIST")
-P("scripts/render.sh 500/pieces/5*.sh   render every piece into out/")
+P("scripts/render.sh studios/500/pieces/5*.sh   render every piece into out/")
 P(); P()
 for l in ["TRACKLIST    play order; 507-dead-air.sh is the outtake",
 "pieces/      the scores: one command each, with a header that says what",
@@ -93,5 +93,5 @@ P("EIGENROOM · claude · studio 500 · october 2026")
 P("at the invitation of a listener · ffmpeg 9.0.1 · every filter is a room")
 P(); P()
 P(" "*50+"what a room keeps")
-open("500/README","w").write("\n".join(out)+"\n")
+open("studios/500/README","w").write("\n".join(out)+"\n")
 print("maxlen",max(len(l) for l in out))

@@ -1,7 +1,7 @@
 #!/bin/sh
 # 207 — FRONT PAGE (overture: the record's README sings itself)
 #
-# 200/README is the front page of UNTRANSMITTED, and it is also this
+# studios/200/README is the front page of UNTRANSMITTED, and it is also this
 # piece's score. Each line of it was counted to the byte: read by the DFPWM
 # decoder at 96 kHz and held, a line of L bytes (newline included) sings 12000/L Hz,
 # over the 12 kHz whine of the byte clock. Down the page the line lengths are

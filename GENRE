@@ -13,11 +13,11 @@ RULES
 
 FILES
 
-NNN/pieces/NNN-slug.sh: a comment header, then one ffmpeg command ending in
+studios/NNN/pieces/NNN-slug.sh: a comment header, then one ffmpeg command ending in
 "$@".
 
-- scripts/render.sh [-f] [paths] → NNN/out/NNN-slug.{mp3,png,stats,log}
+- scripts/render.sh [-f] [paths] → studios/NNN/out/NNN-slug.{mp3,png,stats,log}
 - scripts/play.sh [-l] [-s sec] [NNN | NNN | sketches | path]
-- NNN/TRACKLIST: album order for scripts/play.sh NNN.
+- studios/NNN/TRACKLIST: album order for scripts/play.sh NNN.
 - scripts/browse.sh
 - devenv shell pins the ffmpeg build.
